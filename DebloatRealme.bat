@@ -21,6 +21,7 @@ adb shell pm uninstall -k --user 0 com.android.hotwordenrollment.okgoogle rem Go
 adb shell pm uninstall -k --user 0 com.google.android.apps.nbu.files rem Files By Google
 adb shell pm uninstall -k --user 0 com.google.android.printservice.recommendation rem Print Service Component
 adb shell pm uninstall -k --user 0 com.google.ar.core rem AR Core
+adb shell pm uninstall -k --user 0 com.google.android.accessibility.soundamplifier rem Sound Amplifier
 adb shell pm uninstall -k --user 0 com.google.android.apps.googleassistant rem Assistant
 adb shell pm uninstall -k --user 0 com.google.ar.lens rem Lens
 adb shell pm uninstall -k --user 0 com.google.android.apps.docs 
