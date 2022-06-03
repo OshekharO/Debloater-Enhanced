@@ -1,6 +1,6 @@
 @echo OFF
 set s=---------------------------------------------------------------------------
-set m1= Script made By realkarthiknair
+set m1= Script Edited By OshekharO
 set m2= Go turn on usb debugging if you haven't did till now and connect your device to pc.
 set m3= you wont face any issues 99.69% of times, but still take backup of really important files
 echo %m1%
@@ -12,6 +12,18 @@ pause
 adb wait-for-any-device
 adb reconnect
 adb wait-for-any-device
+adb shell cmd package install-existing com.google.android.apps.googleassistant
+adb shell cmd package install-existing com.google.ar.lens
+adb shell cmd package install-existing com.google.android.apps.docs
+adb shell cmd package install-existing com.google.android.keep
+adb shell cmd package install-existing com.google.android.apps.photos
+adb shell cmd package install-existing com.google.android.projection.gearhead
+adb shell cmd package install-existing com.google.android.printservice.recommendation
+adb shell cmd package install-existing com.google.ar.core
+adb shell cmd package install-existing com.google.android.feedback 
+adb shell cmd package install-existing com.coloros.childrenspace
+adb shell cmd package install-existing com.coloros.compass2
+adb shell cmd package install-existing com.coloros.logkit
 adb shell cmd package install-existing cn.wps.moffice_eng
 adb shell cmd package install-existing com.google.android.apps.podcasts
 adb shell cmd package install-existing com.realme.link
@@ -27,6 +39,7 @@ adb shell cmd package install-existing com.facebook.services
 adb shell cmd package install-existing com.realme.securitycheck
 adb shell cmd package install-existing com.coloros.phonemanager
 adb shell cmd package install-existing com.coloros.oppomultiapp
+adb shell cmd package install-existing com.oplus.games
 adb shell cmd package install-existing com.coloros.gamespace
 adb shell cmd package install-existing com.heytap.music
 adb shell cmd package install-existing com.heytap.themestore
@@ -55,7 +68,6 @@ adb shell cmd package install-existing com.heytap.usercenter
 adb shell cmd package install-existing com.realmestore.app
 adb shell cmd package install-existing com.google.android.videos
 adb shell cmd package install-existing com.redteamobile.roaming
-adb shell cmd package install-existing com.oplus.games
 adb shell pm enable com.android.fmradio
 adb shell pm enable com.nearme.statistics.rom
 adb shell pm enable com.glance.internet
