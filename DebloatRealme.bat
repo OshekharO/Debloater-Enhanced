@@ -28,12 +28,12 @@ adb shell pm uninstall -k --user 0 com.google.android.keep rem Keep Notes
 adb shell pm uninstall -k --user 0 com.google.android.apps.photos rem Photos
 adb shell pm uninstall -k --user 0 com.google.android.projection.gearhead
 adb shell pm uninstall -k --user 0 com.google.android.feedback rem Feedback
-adb shell pm uninstall -k --user 0 com.coloros.childrenspace
+adb shell pm uninstall -k --user 0 com.coloros.childrenspace rem Kid Space
 adb shell pm uninstall -k --user 0 com.coloros.compass2 rem Compass
 adb shell pm uninstall -k --user 0 com.coloros.logkit 
-adb shell pm uninstall -k --user 0 com.coloros.systemclone
-adb shell pm uninstall -k --user 0 com.realmepay.payments
-adb shell pm uninstall -k --user 0 com.opos.cs
+adb shell pm uninstall -k --user 0 com.coloros.systemclone 
+adb shell pm uninstall -k --user 0 com.realmepay.payments 
+adb shell pm uninstall -k --user 0 com.opos.cs rem Hot Apps
 adb shell pm uninstall -k --user 0 com.facebook.katana rem FB JUNK
 adb shell pm uninstall -k --user 0 com.facebook.system rem FB JUNK
 adb shell pm uninstall -k --user 0 com.facebook.appmanager rem FB JUNK
@@ -56,8 +56,8 @@ adb shell pm uninstall -k --user 0 com.google.android.youtube rem YouTube
 adb shell pm uninstall -k --user 0 com.coloros.assistantscreen
 adb shell pm uninstall -k --user 0 com.google.android.apps.nbu.paisa.user rem Gpay
 adb shell pm uninstall -k --user 0 com.coloros.videoeditor
-adb shell pm uninstall -k --user 0 com.coloros.video
-adb shell pm uninstall -k --user 0 com.heytap.browser
+adb shell pm uninstall -k --user 0 com.coloros.video rem Video
+adb shell pm uninstall -k --user 0 com.heytap.browser rem Browser
 adb shell pm uninstall -k --user 0 com.os.docvault rem Doc Vault
 adb shell pm uninstall -k --user 0 com.finshell.fin rem Finshell
 adb shell pm uninstall com.coloros.onekeylockscreen
