@@ -1,6 +1,6 @@
 @echo OFF
 set s=---------------------------------------------------------------------------
-set m1= Script made By realkarthiknair
+set m1= Script Edited By OshekharO
 set m2= Go turn on usb debugging if you haven't did till now and connect your device to pc.
 set m3= you wont face any issues 99.69% of times, but still take backup of really important files
 echo %m1%
