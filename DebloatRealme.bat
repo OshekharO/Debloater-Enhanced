@@ -78,6 +78,6 @@ echo your device has been debloated
 echo %s%
 echo %m1%
 echo %s%
-echo if you like this work, dont forget to follow realkarthiknair at instagram 
+echo if you like this work, dont forget to follow OshekharO at GitHub 
 echo %s%
 pause
