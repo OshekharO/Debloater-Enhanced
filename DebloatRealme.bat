@@ -16,10 +16,10 @@ adb shell pm uninstall cn.wps.moffice_eng rem WPS Office
 adb shell pm uninstall com.google.android.apps.podcasts rem Podcast
 adb shell pm uninstall com.realme.link rem Realme Link
 adb shell pm uninstall com.google.android.apps.youtube.music rem YouTube Music
-adb shell pm uninstall com.google.android.apps.tachyon rem
+adb shell pm uninstall com.google.android.apps.tachyon rem Google Duo
 adb shell pm uninstall -k --user 0 com.android.hotwordenrollment.okgoogle rem Google Assistant Enroll
 adb shell pm uninstall -k --user 0 com.google.android.apps.nbu.files rem Files By Google
-adb shell pm uninstall -k --user 0 com.google.android.printservice.recommendation rem
+adb shell pm uninstall -k --user 0 com.google.android.printservice.recommendation rem Print Service Component
 adb shell pm uninstall -k --user 0 com.google.ar.core rem AR Core
 adb shell pm uninstall -k --user 0 com.google.android.apps.googleassistant rem Assistant
 adb shell pm uninstall -k --user 0 com.google.ar.lens rem Lens
