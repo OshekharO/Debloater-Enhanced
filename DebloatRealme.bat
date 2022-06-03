@@ -12,32 +12,32 @@ pause
 adb wait-for-any-device
 adb reconnect
 adb wait-for-any-device
-adb shell pm uninstall cn.wps.moffice_eng
-adb shell pm uninstall com.google.android.apps.podcasts
-adb shell pm uninstall com.realme.link
-adb shell pm uninstall com.google.android.apps.youtube.music
-adb shell pm uninstall com.google.android.apps.tachyon
-adb shell pm uninstall -k --user 0 com.android.hotwordenrollment.okgoogle
-adb shell pm uninstall -k --user 0 com.google.android.apps.nbu.files
-adb shell pm uninstall -k --user 0 com.google.android.printservice.recommendation
-adb shell pm uninstall -k --user 0 com.google.ar.core
-adb shell pm uninstall -k --user 0 com.google.android.apps.googleassistant
-adb shell pm uninstall -k --user 0 com.google.ar.lens
-adb shell pm uninstall -k --user 0 com.google.android.apps.docs
-adb shell pm uninstall -k --user 0 com.google.android.keep
-adb shell pm uninstall -k --user 0 com.google.android.apps.photos
+adb shell pm uninstall cn.wps.moffice_eng rem 
+adb shell pm uninstall com.google.android.apps.podcasts rem Podcast
+adb shell pm uninstall com.realme.link rem Realme Link
+adb shell pm uninstall com.google.android.apps.youtube.music rem YouTube Music
+adb shell pm uninstall com.google.android.apps.tachyon rem
+adb shell pm uninstall -k --user 0 com.android.hotwordenrollment.okgoogle rem Google Assistant Enroll
+adb shell pm uninstall -k --user 0 com.google.android.apps.nbu.files rem Files By Google
+adb shell pm uninstall -k --user 0 com.google.android.printservice.recommendation rem
+adb shell pm uninstall -k --user 0 com.google.ar.core rem AR Core
+adb shell pm uninstall -k --user 0 com.google.android.apps.googleassistant rem Assistant
+adb shell pm uninstall -k --user 0 com.google.ar.lens rem Lens
+adb shell pm uninstall -k --user 0 com.google.android.apps.docs 
+adb shell pm uninstall -k --user 0 com.google.android.keep rem Keep Notes
+adb shell pm uninstall -k --user 0 com.google.android.apps.photos rem Photos
 adb shell pm uninstall -k --user 0 com.google.android.projection.gearhead
-adb shell pm uninstall -k --user 0 com.google.android.feedback 
+adb shell pm uninstall -k --user 0 com.google.android.feedback rem Feedback
 adb shell pm uninstall -k --user 0 com.coloros.childrenspace
-adb shell pm uninstall -k --user 0 com.coloros.compass2
+adb shell pm uninstall -k --user 0 com.coloros.compass2 rem Compass
 adb shell pm uninstall -k --user 0 com.coloros.logkit 
 adb shell pm uninstall -k --user 0 com.coloros.systemclone
 adb shell pm uninstall -k --user 0 com.realmepay.payments
 adb shell pm uninstall -k --user 0 com.opos.cs
-adb shell pm uninstall -k --user 0 com.facebook.katana
-adb shell pm uninstall -k --user 0 com.facebook.system
-adb shell pm uninstall -k --user 0 com.facebook.appmanager
-adb shell pm uninstall -k --user 0 com.facebook.services
+adb shell pm uninstall -k --user 0 com.facebook.katana rem FB JUNK
+adb shell pm uninstall -k --user 0 com.facebook.system rem FB JUNK
+adb shell pm uninstall -k --user 0 com.facebook.appmanager rem FB JUNK
+adb shell pm uninstall -k --user 0 com.facebook.services rem FB JUNK
 adb shell pm uninstall -k --user 0 com.realme.securitycheck
 adb shell pm uninstall -k --user 0 com.coloros.phonemanager
 adb shell pm uninstall -k --user 0 com.coloros.oppomultiapp
