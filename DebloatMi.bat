@@ -26,7 +26,7 @@ adb shell pm uninstall -k --user 0 com.miui.mishare.connectivity rem Mi Share
 adb shell pm uninstall -k --user 0 com.netflix.mediaclient rem Netflix
 adb shell pm uninstall -k --user 0 com.amazon.avod.thirdpartyclient rem Amazon Prime Video
 adb shell pm uninstall -k --user 0 com.xiaomi.drop rem Share me
-adb shell pm uninstall -k --user 0 com.miui.weather2 rem Weather
+:: adb shell pm uninstall -k --user 0 com.miui.weather2 rem Weather
 adb shell pm uninstall -k --user 0 com.miui.cloudservice rem Mi Cloud
 adb shell pm uninstall -k --user 0 com.facebook.appmanager rem Facebook App Manager
 adb shell pm uninstall -k --user 0 com.facebook.services rem Facebook Services
