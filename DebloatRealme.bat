@@ -2,7 +2,7 @@
 set s=---------------------------------------------------------------------------
 set m1= Script Edited By OshekharO
 set m2= Go turn on usb debugging if you haven't did till now and connect your device to pc.
-set m3= you wont face any issues 99.69% of times, but still take backup of really important files
+set m3= you wont face any issues 99.99% of times, but still take backup of really important files
 echo %m1%
 echo %m3%
 echo %s%
@@ -112,7 +112,7 @@ adb shell pm uninstall -k --user 0 com.coloros.phonemanager
 echo Uninstalling 
 adb shell pm uninstall -k --user 0 com.coloros.oppomultiapp 
 
-echo Uninstalling GameSpace
+:: echo Uninstalling GameSpace
 :: adb shell pm uninstall -k --user 0 com.coloros.gamespace
 
 echo Uninstalling Realme Music
@@ -142,7 +142,7 @@ adb shell pm uninstall -k --user 0 com.coloros.oshare
 echo Uninstalling HomeScreen Search
 adb shell pm uninstall -k --user 0 com.oppo.quicksearchbox
 
-echo Uninstalling Game Space
+:: echo Uninstalling Game Space
 :: adb shell pm uninstall -k --user 0 com.coloros.gamespaceui
 
 echo Uninstalling YouTube
