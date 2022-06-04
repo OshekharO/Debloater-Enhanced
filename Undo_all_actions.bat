@@ -112,7 +112,7 @@ adb shell cmd package install-existing com.coloros.phonemanager
 echo Installing 
 adb shell cmd package install-existing com.coloros.oppomultiapp 
 
-echo Installing GameSpace
+:: echo Installing GameSpace
 :: adb shell cmd package install-existing com.coloros.gamespace
 
 echo Installing Realme Music
@@ -142,7 +142,7 @@ adb shell cmd package install-existing com.coloros.oshare
 echo Installing HomeScreen Search
 adb shell cmd package install-existing com.oppo.quicksearchbox
 
-echo Installing Game Space
+:: echo Installing Game Space
 :: adb shell cmd package install-existing com.coloros.gamespaceui
 
 echo Installing YouTube
