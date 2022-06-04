@@ -209,7 +209,7 @@ echo Disabling
 adb shell pm disable-user --user 0 com.nearme.statistics.rom
 
 echo Disabling Glance For Realme
-adb shell pm disable-user  --user 0  com.glance.internet
+adb shell pm disable-user  --user 0 com.glance.internet
 
 echo %s%
 echo your device has been debloated
