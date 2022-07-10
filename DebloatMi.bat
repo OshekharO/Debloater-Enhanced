@@ -12,6 +12,15 @@ pause
 adb wait-for-any-device
 adb reconnect
 adb wait-for-any-device
+adb shell pm uninstall -k --user 0 com.mi.liveassistant rem Mi Live Assistant
+adb shell pm uninstall -k --user 0 com.miui.userguide rem User Guide
+adb shell pm uninstall -k --user 0 com.xiaomi.mibrain.speech rem XiaoAiSpeechEngine
+adb shell pm uninstall -k --user 0 com.xiaomi.smarthome rem Mi Hone
+adb shell pm uninstall -k --user 0 com.miui.voiceassist rem Mi AI
+adb shell pm uninstall -k --user 0 com.xiaomi.market rem GetApps
+adb shell pm uninstall -k --user 0 com.sohu.inputmethod.sogou.xiaomi rem Sogou Keyboard
+adb shell pm uninstall -k --user 0 com.iflytek.inputmethod.miui rem iFlytek IME
+adb shell pm uninstall -k --user 0 com.miui.smarttravel rem Trips
 adb shell pm uninstall -k --user 0 com.android.browser rem Mi Browser
 adb shell pm uninstall -k --user 0 com.facebook.katana rem Facebook
 adb shell pm uninstall -k --user 0 in.amazon.mShop.android.shopping rem Amazon
