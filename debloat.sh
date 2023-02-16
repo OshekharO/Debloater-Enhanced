@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 1.0
+# Version 1.1
 # Author: [Saksham Shekher]
 
 # Check if device is connected
@@ -12,7 +12,7 @@ fi
 
 echo ""
 echo "================================================================="
-echo "                 Debloating Realme device (Version 1.0)          "
+echo "                 Debloating Realme device (Version 1.1)          "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
@@ -86,7 +86,7 @@ debloat_google_apps() {
     echo "Uninstalling Google Feedback..."
     adb shell pm uninstall --user 0 com.google.android.feedback
 
-    echo "Uninstalling YouTube..."
+    echo "Uninstalling Android Auto..."
     adb shell pm uninstall --user 0 com.google.android.projection.gearhead
 
     echo ""
@@ -123,12 +123,27 @@ list_installed_apps() {
 option=""
 while [ $option != "0" ]
 do
-    echo "1. Debloat Realme apps"
-    echo "2. Debloat Google apps"
-    echo "3. Re-bloat Realme"
-    echo "4. List installed applications"
-    echo "0. Exit"
-    echo ""
+echo ╔═════════════════════════════════════════════════════════════╗  
+echo ║                                                                        ║
+echo ║              __    __     ______     __   __     __  __                ║
+echo ║             /\ "-./  \   /\  ___\   /\ "-.\ \   /\ \/\ \               ║
+echo ║             \ \ \-./\ \  \ \  __\   \ \ \-.  \  \ \ \_\ \              ║
+echo ║              \ \_\ \ \_\  \ \_____\  \ \_\\"\_\  \ \_____\             ║
+echo ║               \/_/  \/_/   \/_____/   \/_/ \/_/   \/_____/             ║
+echo ║                                                                        ║
+echo ║                                                                        ║
+echo ║═════════════════════════════════════════════════════════════║
+echo ║    1   =   Debloat Realme Apps                                         ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    2   =   Debloat Google Apps                                         ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    3   =   Re-bloat Realme                                             ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    4   =   List installed applications.                                ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    0   =   Exit.                                                       ║                                                        ║
+echo ╚═════════════════════════════════════════════════════════════╝                                                         
+echo ""
 
     read -p "Enter an option: " option
 
