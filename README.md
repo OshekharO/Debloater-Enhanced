@@ -11,7 +11,7 @@ adb shell pm list packages -f > %CD%\packages.txt
 
 * Download the latest source code;
 * Turn on usb debugging;
-* Customize the .cmd file;
+* Customize the .bat or .sh file;
 * Run.
 
 ## Note
