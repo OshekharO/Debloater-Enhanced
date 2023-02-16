@@ -24,7 +24,7 @@ Comment out/uncomment packages names
   * [Official all OEMs drivers](https://developer.android.com/studio/run/oem-usb#Drivers)
 * [Download ADB](https://developer.android.com/studio/releases/platform-tools)
 * [Package Manager](https://play.google.com/store/apps/details?id=sarangal.packagemanager)
-* [LABD Android](https://apkadmin.com/yamgici55e50/LADBv2.0-Mod-Arm64-v8a_A2ZAPK.COM.apk.html)
+* [LABD Android](https://userupload.net/wutry343x43x)
 
 ## Reinstall Application's
 
