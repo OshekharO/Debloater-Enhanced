@@ -1,11 +1,11 @@
 @echo off
 
-:: Version 1.0
+:: Version 1.1
 :: Author: [Saksham Shekher]
 
 echo.
 echo "================================================================="
-echo "                 Debloating Realme device (Version 1.0)          "
+echo "                 Debloating Realme device (Version 1.1)          "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
@@ -24,18 +24,39 @@ if "%device%" == "" (
 
 echo "Device detected: %device%"
 
-rem Get the device name
-for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set device_name=%%a
+rem Get the device details
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.device') do set DEVICE_NAME=%%a
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set DEVICE_MODEL=%%a
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand') do set DEVICE_BRAND=%%a
+for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release') do set ANDROID=%%a
 
-echo "Device name: %device_name%"
+echo Device:             %DEVICE_NAME%                                        
+echo Model:              %DEVICE_MODEL%                                                  
+echo Brand:              %DEVICE_BRAND%
+echo Android:            %ANDROID%
 echo.
 
 :menu
-echo 1. Debloat Realme apps                                         
-echo 2. Debloat Google apps                                         
-echo 3. Re-bloat Realme
-echo 4. List installed applications
-echo 0. Exit                                                        
+echo ╔═════════════════════════════════════════════════════════════╗  
+echo ║                                                                        ║
+echo ║              __    __     ______     __   __     __  __                ║
+echo ║             /\ "-./  \   /\  ___\   /\ "-.\ \   /\ \/\ \               ║
+echo ║             \ \ \-./\ \  \ \  __\   \ \ \-.  \  \ \ \_\ \              ║
+echo ║              \ \_\ \ \_\  \ \_____\  \ \_\\"\_\  \ \_____\             ║
+echo ║               \/_/  \/_/   \/_____/   \/_/ \/_/   \/_____/             ║
+echo ║                                                                        ║
+echo ║                                                                        ║
+echo ║═════════════════════════════════════════════════════════════║
+echo ║    1   =   Debloat Realme Apps                                         ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    2   =   Debloat Google Apps                                         ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    3   =   Re-bloat Realme                                             ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    4   =   List installed applications.                                ║
+echo ║————————————————————————————————————————————————————————————————————————║
+echo ║    0   =   Exit.                                                       ║                                                        ║
+echo ╚═════════════════════════════════════════════════════════════╝                                                         
 echo.
 
 set /p option=Enter an option: 
@@ -83,7 +104,7 @@ if %option%==2 (
     echo Uninstalling YouTube...
     adb shell pm uninstall --user 0 com.google.android.youtube
 
-    echo Uninstalling Podcast...
+    echo Uninstalling Google Podcast...
     adb shell pm uninstall --user 0 com.google.android.apps.podcasts
 
     echo Uninstalling Youtube Music...
@@ -107,10 +128,10 @@ if %option%==2 (
     echo Uninstalling Google Photos...
     adb shell pm uninstall --user 0 com.google.android.apps.photos
 
-    echo Uninstalling Google Feedback...
+    echo Uninstalling Market Feedback Agent...
     adb shell pm uninstall --user 0 com.google.android.feedback
 
-    echo Uninstalling YouTube...
+    echo Uninstalling Android Auto...
     adb shell pm uninstall --user 0 com.google.android.projection.gearhead
 
     echo.
