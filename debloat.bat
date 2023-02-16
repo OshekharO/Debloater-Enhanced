@@ -68,9 +68,6 @@ if %option%==1 (
 
 if %option%==2 (
     echo.
-    echo Uninstalling Google Search...
-    adb shell pm uninstall --user 0 com.google.android.googlequicksearchbox
-
     echo Uninstalling Google Duo...
     adb shell pm uninstall --user 0 com.google.android.apps.tachyon
 
@@ -80,8 +77,41 @@ if %option%==2 (
     echo Uninstalling Google Play Movies...
     adb shell pm uninstall --user 0 com.google.android.videos
 
+    echo Uninstalling Google Play Books...
+    adb shell pm uninstall --user 0 com.google.android.apps.books
+
     echo Uninstalling YouTube...
     adb shell pm uninstall --user 0 com.google.android.youtube
+
+    echo Uninstalling Podcast...
+    adb shell pm uninstall --user 0 com.google.android.apps.podcasts
+
+    echo Uninstalling Youtube Music...
+    adb shell pm uninstall --user 0 com.google.android.apps.youtube.music
+
+    echo Uninstalling Files By Google...
+    adb shell pm uninstall --user 0 com.google.android.apps.nbu.files
+
+    echo Uninstalling AR Core...
+    adb shell pm uninstall --user 0 com.google.ar.core
+
+    echo Uninstalling Print Service Component...
+    adb shell pm uninstall --user 0 com.google.android.printservice.recommendation
+
+    echo Uninstalling Google Lens...
+    adb shell pm uninstall --user 0 com.google.ar.lens
+
+    echo Uninstalling Google Drive...
+    adb shell pm uninstall --user 0 com.google.android.apps.docs
+
+    echo Uninstalling Google Photos...
+    adb shell pm uninstall --user 0 com.google.android.apps.photos
+
+    echo Uninstalling Google Feedback...
+    adb shell pm uninstall --user 0 com.google.android.feedback
+
+    echo Uninstalling YouTube...
+    adb shell pm uninstall --user 0 com.google.android.projection.gearhead
 
     echo.
     echo =================================================================
