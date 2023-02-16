@@ -3,6 +3,13 @@
 # Version 1.0
 # Author: [Saksham Shekher]
 
+# Check if device is connected
+adb devices >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Please connect your device via USB."
+    exit 1
+fi
+
 echo ""
 echo "================================================================="
 echo "                 Debloating Realme device (Version 1.0)          "
