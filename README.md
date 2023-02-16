@@ -1,4 +1,5 @@
-# Debloat Realme
+<p align="center"><img src="https://i.ibb.co/pj0Pnj7/ADB-and-Fastboot-Plus-Plus.png" width="200"></p>
+<h1 align="center"><b>Debloat Realme</b></h1>
 
 :sparkles: script to debloat Apps ***No ROOT or Unlocked Bootloader Required!*** :sparkles:
 ## Get apps packages list
