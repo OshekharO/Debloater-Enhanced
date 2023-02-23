@@ -25,38 +25,22 @@ if "%device%" == "" (
 echo "Device detected: %device%"
 
 rem Get the device details
-for /f "tokens=*" %%a in ('adb shell getprop ro.product.device') do set DEVICE_NAME=%%a
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set DEVICE_MODEL=%%a
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand') do set DEVICE_BRAND=%%a
 for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release') do set ANDROID=%%a
 
-echo Device:             %DEVICE_NAME%                                        
-echo Model:              %DEVICE_MODEL%                                                  
-echo Brand:              %DEVICE_BRAND%
-echo Android:            %ANDROID%
+echo Device:      %DEVICE_NAME%                                        
+echo Model:       %DEVICE_MODEL%                                                  
+echo Brand:       %DEVICE_BRAND%
+echo Android:     %ANDROID%
 echo.
 
 :menu
-echo ╔═════════════════════════════════════════════════════════════╗  
-echo ║                                                                        ║
-echo ║              __    __     ______     __   __     __  __                ║
-echo ║             /\ "-./  \   /\  ___\   /\ "-.\ \   /\ \/\ \               ║
-echo ║             \ \ \-./\ \  \ \  __\   \ \ \-.  \  \ \ \_\ \              ║
-echo ║              \ \_\ \ \_\  \ \_____\  \ \_\\"\_\  \ \_____\             ║
-echo ║               \/_/  \/_/   \/_____/   \/_/ \/_/   \/_____/             ║
-echo ║                                                                        ║
-echo ║                                                                        ║
-echo ║═════════════════════════════════════════════════════════════║
-echo ║    1   =   Debloat Realme Apps                                         ║
-echo ║————————————————————————————————————————————————————————————————————————║
-echo ║    2   =   Debloat Google Apps                                         ║
-echo ║————————————————————————————————————————————————————————————————————————║
-echo ║    3   =   Re-bloat Realme                                             ║
-echo ║————————————————————————————————————————————————————————————————————————║
-echo ║    4   =   List installed applications.                                ║
-echo ║————————————————————————————————————————————————————————————————————————║
-echo ║    0   =   Exit.                                                       ║                                                        ║
-echo ╚═════════════════════════════════════════════════════════════╝                                                         
+echo 1  = Debloat Realme Apps
+echo 2  = Debloat Google Apps
+echo 3  = Re-bloat Realme
+echo 4  = List installed applications
+echo 0  = Exit                                            ║                                                         
 echo.
 
 set /p option=Enter an option: 
