@@ -68,6 +68,9 @@ if %option%==1 (
     echo Uninstalling Realme Browser...
     adb shell pm uninstall --user 0 com.heytap.browser
 
+    echo Uninstalling Tencent Telemetry...
+    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
+
     echo Uninstalling Realme Share...
     adb shell pm uninstall --user 0 com.coloros.oshare
 
