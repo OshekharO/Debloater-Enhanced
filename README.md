@@ -24,7 +24,7 @@ Comment out/uncomment packages names
 * [Google USB Driver](https://developer.android.com/studio/run/win-usb)
   * [Official all OEMs drivers](https://developer.android.com/studio/run/oem-usb#Drivers)
 * [Download ADB](https://developer.android.com/studio/releases/platform-tools)
-* [Package Manager](https://play.google.com/store/apps/details?id=sarangal.packagemanager)
+* [Package Manager](https://play.google.com/store/apps/details?id=com.csdroid.pkg)
 * [LABD Android](https://userupload.net/wutry343x43x)
 
 ## Reinstall Application's
