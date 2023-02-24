@@ -1,4 +1,3 @@
-<p align="center"><img src="https://i.ibb.co/pj0Pnj7/ADB-and-Fastboot-Plus-Plus.png" width="200"></p>
 <h1 align="center"><b>Debloat Realme</b></h1>
 
 :sparkles: script to debloat Apps ***No ROOT or Unlocked Bootloader Required!*** :sparkles:
@@ -17,7 +16,11 @@ adb shell pm list packages -f > %CD%\packages.txt
 
 ## Note
 
-Comment out/uncomment packages names
+Battery drainer: Chrome & Quick Device Connect.
+
+Ram killer: Athena. (Disappear Clear All Button)
+
+OS Bricker: weather services, one handed mode, startup wizard.
 
 ## Links
 
