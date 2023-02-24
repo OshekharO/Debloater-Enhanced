@@ -98,6 +98,9 @@ if %option%==1 (
     echo Uninstalling Secure Payment...
     adb shell pm uninstall --user 0 com.oplus.pay
 
+    echo Uninstalling Secure Payment...
+    adb shell pm uninstall --user 0 com.nearme.atlas
+
     echo Uninstalling Realme Cloud...
     adb shell pm uninstall --user 0 com.heytap.cloud
 
