@@ -74,6 +74,9 @@ if %option%==1 (
     echo Uninstalling Realme Share...
     adb shell pm uninstall --user 0 com.coloros.oshare
 
+    echo Uninstalling HeyFun...
+    adb shell pm uninstall --user 0 com.heytap.quickgame
+
     echo Uninstalling Quick Device Connect...
     adb shell pm uninstall --user 0 com.heytap.accessory
 
@@ -82,6 +85,14 @@ if %option%==1 (
 
     echo Uninstalling User Guide...
     adb shell pm uninstall --user 0 com.oppo.opperationManual
+
+    echo Uninstalling OPPO Clone Phone...
+    adb shell pm uninstall --user 0 com.coloros.oppomultiapp
+    adb shell pm uninstall --user 0 com.coloros.backuprestore
+
+    echo Uninstalling Game Space UI...
+    adb shell pm uninstall --user 0 com.coloros.gamespaceui
+    adb shell pm uninstall --user 0 com.coloros.gamespace
 
     echo Uninstalling Doc Vault...
     adb shell pm uninstall --user 0 com.os.docvault
@@ -213,6 +224,10 @@ if %option%==2 (
 
     echo Uninstalling Google Play Books...
     adb shell pm uninstall --user 0 com.google.android.apps.books
+
+    echo Uninstalling Google Assistant...
+    adb shell pm uninstall --user 0 com.android.hotwordenrollment.okgoogle
+    adb shell pm uninstall --user 0 com.google.android.apps.googleassistant
 
     echo Uninstalling YouTube...
     adb shell pm uninstall --user 0 com.google.android.youtube
