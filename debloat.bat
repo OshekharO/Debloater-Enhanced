@@ -306,7 +306,7 @@ if %option%==3 (
 if %option%==4 (
     echo.
     echo Listing installed applications...
-    adb shell pm list packages -f
+    adb shell pm list packages -f | awk -F'[=:]' '{print $2 " : " $3}'
 
     echo.
     echo =================================================================
