@@ -5,7 +5,7 @@
 
 echo.
 echo "================================================================="
-echo "                 Debloating Realme device (Version 1.1)          "
+echo "                 Debloater Enhanced (Version 1.1)          "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
@@ -17,7 +17,7 @@ rem Detect if phone is connected
 for /f "tokens=1" %%a in ('adb devices -l ^| find "model:"') do set device=%%a
 
 if "%device%" == "" (
-    echo "No device connected. Please connect a Realme device and try again."
+    echo "No device connected. Please connect a device and try again."
     pause
     exit /b
 )
@@ -29,8 +29,8 @@ for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set DEVICE_MO
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand') do set DEVICE_BRAND=%%a
 for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release') do set ANDROID=%%a
 
-echo Device:      %DEVICE_NAME%                                        
-echo Model:       %DEVICE_MODEL%                                                  
+echo
+echo Model:       %DEVICE_MODEL%
 echo Brand:       %DEVICE_BRAND%
 echo Android:     %ANDROID%
 echo.
@@ -40,7 +40,7 @@ echo 1  = Debloat Realme Apps
 echo 2  = Debloat Google Apps
 echo 3  = Re-bloat Realme
 echo 4  = List installed applications
-echo 0  = Exit                                            ║                                                         
+echo 0  = Exit
 echo.
 
 set /p option=Enter an option: 
