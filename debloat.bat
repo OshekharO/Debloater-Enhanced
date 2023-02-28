@@ -5,7 +5,7 @@
 
 echo.
 echo "================================================================="
-echo "                 Debloater Enhanced (Version 1.1)          "
+echo "                 Debloater Enhanced (Version 1.1)                "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
