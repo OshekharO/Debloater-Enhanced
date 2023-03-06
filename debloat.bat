@@ -11,19 +11,6 @@ echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
 echo.
 
-set device=
-
-rem Detect if phone is connected
-for /f "tokens=1" %%a in ('adb devices -l ^| find "model:"') do set device=%%a
-
-if "%device%" == "" (
-    echo "No device connected. Please connect a device and try again."
-    pause
-    exit /b
-)
-
-echo "Device detected: %device%"
-
 rem Get the device details
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set DEVICE_MODEL=%%a
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand') do set DEVICE_BRAND=%%a
@@ -190,14 +177,17 @@ if %option%==1 (
     echo Uninstalling Facebook Katana...
     adb shell pm uninstall --user 0 com.facebook.katana
 
+    echo Uninstalling Statistics...
+    adb shell pm uninstall --user 0 com.nearme.statistics.rom
+
     echo Disabling Theme Store...
     adb shell pm disable-user --user 0 com.heytap.themestore
 
     echo Disabling FM Radio...
     adb shell pm disable-user --user 0 com.android.fmradio
 
-    echo Disabling Statistics...
-    adb shell pm disable-user --user 0 com.nearme.statistics.rom
+    echo Disabling Phone Manager...
+    adb shell pm disable-user --user 0 com.coloros.phonemanager
 
     echo Disabling Glance...
     adb shell pm disable-user  --user 0 com.glance.internet
@@ -306,7 +296,7 @@ if %option%==3 (
 if %option%==4 (
     echo.
     echo Listing installed applications...
-    adb shell pm list packages -f | awk -F'[=:]' '{print $2 " : " $3}'
+    adb shell pm list packages -f
 
     echo.
     echo =================================================================
