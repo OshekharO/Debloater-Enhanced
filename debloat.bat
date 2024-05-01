@@ -1,11 +1,11 @@
 @echo off
 
-:: Version 1.1
+:: Version 1.2
 :: Author: [Saksham Shekher]
 
 echo.
 echo "================================================================="
-echo "                 Debloater Enhanced (Version 1.1)                "
+echo "                 Debloater Enhanced (Version 1.2)                "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
@@ -25,7 +25,7 @@ echo.
 :menu
 echo 1  = Debloat Realme Apps
 echo 2  = Debloat Google Apps
-echo 3  = Re-bloat Realme
+echo 3  = Debloat Xiaomi Apps
 echo 4  = List installed applications
 echo 0  = Exit
 echo.
@@ -194,7 +194,7 @@ if %option%==1 (
 
     echo.
     echo =================================================================
-    echo                  Realme apps debloated.                         
+    echo                  Realme Apps Debloated.                         
     echo =================================================================
     echo.
 
@@ -211,6 +211,9 @@ if %option%==2 (
 
     echo Uninstalling Google One...
     adb shell pm uninstall --user 0 com.google.android.apps.subscriptions.red
+
+    echo Uninstalling Accessibility Suite...
+    adb shell pm uninstall --user 0 com.google.android.marvin.talkback
 
     echo Uninstalling Keep Notes...
     adb shell pm uninstall -k --user 0 com.google.android.keep
@@ -272,7 +275,7 @@ if %option%==2 (
 
     echo.
     echo =================================================================
-    echo                  Google apps debloated.                         
+    echo                  Google Apps Debloated.                         
     echo =================================================================
     echo.
 
@@ -281,12 +284,93 @@ if %option%==2 (
 
 if %option%==3 (
     echo.
-    echo Re-bloating Realme apps...
-    adb shell cmd package install-existing
+    echo Uninstalling Mi Browser...
+    adb shell pm uninstall --user 0 com.android.browser
+
+    echo Uninstalling Mi Store...
+    adb shell pm uninstall --user 0 com.xiaomi.shop
+
+    echo Uninstalling Facebook Services...
+    adb shell pm uninstall --user 0 com.facebook.services
+
+    echo Uninstalling Facebook Appmanager...
+    adb shell pm uninstall --user 0 com.facebook.appmanager
+
+    echo Uninstalling Facebook System...
+    adb shell pm uninstall --user 0 com.facebook.system
+
+    echo Uninstalling Facebook Katana...
+    adb shell pm uninstall --user 0 com.facebook.katana
+
+    echo Uninstalling Amazon...
+    adb shell pm uninstall --user 0 in.amazon.mShop.android.shopping
+    adb shell pm uninstall --user 0 com.amazon.appmanager
+
+    echo Uninstalling Linkedin...
+    adb shell pm uninstall --user 0 com.linkedin.android
+
+    echo Uninstalling WPS...
+    adb shell pm uninstall --user 0 cn.wps.xiaomi.abroad.lite
+
+    echo Uninstalling Netflix...
+    adb shell pm uninstall --user 0 com.netflix.mediaclient
+
+    echo Uninstalling Analytics...
+    adb shell pm uninstall --user 0 com.miui.analytics
+
+    echo Uninstalling MI Feedback...
+    adb shell pm uninstall --user 0 com.miui.bugreport
+
+    echo Uninstalling Video Player...
+    adb shell pm uninstall --user 0 com.miui.videoplayer
+
+    echo Uninstalling Music Player...
+    adb shell pm uninstall --user 0 com.miui.player
+
+    echo Uninstalling Notes...
+    adb shell pm uninstall --user 0 com.miui.notes
+
+    echo Uninstalling Yellow Pages...
+    adb shell pm uninstall --user 0 com.miui.yellowpage
+
+    echo Uninstalling Main Advertising System...
+    adb shell pm uninstall --user 0 com.miui.msa.global
+    adb shell pm uninstall --user 0 com.miui.systemAdSolution
+
+    echo Uninstalling MI Games...
+    adb shell pm uninstall --user 0 com.xiaomi.glgm
+
+    echo Uninstalling Daemon...
+    adb shell pm uninstall --user 0 com.miui.daemon
+
+    echo Uninstalling Xiaomi Recording Assistant...
+    adb shell pm uninstall --user 0 com.miui.audiomonitor
+
+    echo Uninstalling CarWith...
+    adb shell pm uninstall --user 0 com.miui.carlink
+
+    echo Uninstalling Translation...
+    adb shell pm uninstall --user 0 com.miui.translation.kingsoft
+    adb shell pm uninstall --user 0 com.miui.translation.xmcloud
+    adb shell pm uninstall --user 0 com.miui.translationservice
+
+    echo Uninstalling MI Cloud...
+    adb shell pm uninstall --user 0 com.miui.cloudbackup
+    adb shell pm uninstall --user 0 com.miui.cloudservice
+    adb shell pm uninstall --user 0 com.miui.cloudservice.sysbase
+    adb shell pm uninstall --user 0 com.miui.micloudsync
+
+    echo Uninstalling MI Pay...
+    adb shell pm uninstall --user 0 com.mipay.wallet.in
+    adb shell pm uninstall --user 0 com.xiaomi.payment
+    adb shell pm uninstall --user 0 com.miui.nextpay
+    adb shell pm uninstall --user 0 com.unionpay.tsmservice.mi
+    adb shell pm uninstall --user 0 org.mipay.android.manager
+    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
 
     echo.
     echo =================================================================
-    echo                    Realme apps rebloated.                          
+    echo                    Miui Apps Debloated.                          
     echo =================================================================
     echo.
 
@@ -300,7 +384,7 @@ if %option%==4 (
 
     echo.
     echo =================================================================
-    echo                 Installed applications listed.                  
+    echo                 Installed Applications Listed.                  
     echo =================================================================
     echo.
 
