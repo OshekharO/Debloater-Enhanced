@@ -1,7 +1,3 @@
-<h1 align="center">
-  <img alt="logo" src="https://i.ibb.co/MGDdGGV/debloat-enhanced-high-resolution-logo-black-on-transparent-background.png" width="300px"/><br/>
-</h1>
-
 # Debloat Enhanced
 
 :sparkles: Script to debloat apps ***No ROOT or Unlocked Bootloader Required!*** :sparkles:
