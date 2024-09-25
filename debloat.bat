@@ -1,11 +1,11 @@
 @echo off
 
-:: Version 1.2
+:: Version 1.3
 :: Author: [Saksham Shekher]
 
 echo.
 echo "================================================================="
-echo "                 Debloater Enhanced (Version 1.2)                "
+echo "                 Debloater Enhanced (Version 1.3)                "
 echo "================================================================="
 echo "Author: [Saksham Shekher]                                        "
 echo "Warning: Debloat at your own risk!                               "
@@ -23,16 +23,31 @@ echo Android:     %ANDROID%
 echo.
 
 :menu
-echo 1  = Debloat Realme Apps
-echo 2  = Debloat Google Apps
-echo 3  = Debloat Xiaomi Apps
-echo 4  = List installed applications
+echo 1  = List installed applications
+echo 2  = Debloat Realme Apps
+echo 3  = Debloat Google Apps
+echo 4  = Debloat Xiaomi Apps
+echo 5  = Custom uninstall
 echo 0  = Exit
 echo.
 
 set /p option=Enter an option: 
 
 if %option%==1 (
+    echo.
+    echo Listing installed applications...
+    adb shell pm list packages -f
+
+    echo.
+    echo =================================================================
+    echo                 Installed Applications Listed.                  
+    echo =================================================================
+    echo.
+
+    goto postprocess
+)
+
+if %option%==2 (
     echo.
     echo Uninstalling Hot Apps...
     adb shell pm uninstall --user 0 com.opos.cs
@@ -201,7 +216,7 @@ if %option%==1 (
     goto postprocess
 )
 
-if %option%==2 (
+if %option%==3 (
     echo.
     echo Uninstalling Google Duo...
     adb shell pm uninstall --user 0 com.google.android.apps.tachyon
@@ -282,7 +297,7 @@ if %option%==2 (
     goto postprocess
 )
 
-if %option%==3 (
+if %option%==4 (
     echo.
     echo Uninstalling Mi Browser...
     adb shell pm uninstall --user 0 com.android.browser
@@ -377,14 +392,15 @@ if %option%==3 (
     goto postprocess
 )
 
-if %option%==4 (
+if %option%==5 (
     echo.
-    echo Listing installed applications...
-    adb shell pm list packages -f
+    set /p package=Enter package name to uninstall: 
+    echo Uninstalling %package%...
+    adb shell pm uninstall --user 0 %package%
 
     echo.
     echo =================================================================
-    echo                 Installed Applications Listed.                  
+    echo                 Custom Uninstall Completed.                  
     echo =================================================================
     echo.
 
