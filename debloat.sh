@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Debloater Enhanced — ColorOS 13.1 Edition
-# Version 2.0 | Author: Saksham Shekher
-# Targets: OPPO / Realme devices running ColorOS 13.1 (Android 13)
+# Debloater Enhanced — Multi-Brand Edition
+# Version 3.0 | Author: Saksham Shekher
+# Targets: OPPO / Realme (ColorOS 13+) | Xiaomi / Redmi (MIUI 14 / HyperOS)
+#          OnePlus (OxygenOS 13/14)
 # =============================================================================
 # DISCLAIMER: Use at your own risk. Some packages may be required for full
 # device functionality. Review each category carefully before proceeding.
@@ -42,8 +43,8 @@ log_action() {
 print_banner() {
     echo -e "${BOLD}${MAGENTA}"
     echo "  ╔══════════════════════════════════════════════════════╗"
-    echo "  ║      Debloater Enhanced — ColorOS 13.1 Edition       ║"
-    echo "  ║                     Version 2.0                      ║"
+    echo "  ║       Debloater Enhanced — Multi-Brand Edition       ║"
+    echo "  ║                     Version 3.0                      ║"
     echo "  ╚══════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo -e "  ${DIM}Author  : Saksham Shekher${NC}"
@@ -78,13 +79,16 @@ check_device() {
 
 # ── Device information ────────────────────────────────────────────────────────
 print_device_info() {
-    local model brand android coloros
+    local model brand android coloros miui
     model=$(adb shell getprop ro.product.model 2>/dev/null | tr -d '\r')
     brand=$(adb shell getprop ro.product.brand 2>/dev/null | tr -d '\r')
     android=$(adb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r')
     coloros=$(adb shell getprop ro.build.version.oplusrom.display 2>/dev/null | tr -d '\r')
     [[ -z "$coloros" ]] && coloros=$(adb shell getprop ro.coloros.version.display 2>/dev/null | tr -d '\r')
+    miui=$(adb shell getprop ro.miui.ui.version.name 2>/dev/null | tr -d '\r')
+    [[ -z "$miui" ]] && miui=$(adb shell getprop ro.build.version.incremental 2>/dev/null | tr -d '\r')
     [[ -z "$coloros" ]] && coloros="N/A"
+    [[ -z "$miui" ]] && miui="N/A"
 
     echo -e "  ${BOLD}Connected Device${NC}"
     echo    "  ┌─────────────────────────────────┐"
@@ -92,11 +96,16 @@ print_device_info() {
     printf  "  │  %-10s : %-19s│\n" "Brand"   "$brand"
     printf  "  │  %-10s : %-19s│\n" "Android" "$android"
     printf  "  │  %-10s : %-19s│\n" "ColorOS" "$coloros"
+    printf  "  │  %-10s : %-19s│\n" "MIUI/HOS" "$miui"
     echo    "  └─────────────────────────────────┘"
     echo
 
-    if [[ "$brand" != "OPPO" && "$brand" != "realme" && "$brand" != "OnePlus" ]]; then
-        warn "This script targets ColorOS 13.1 (OPPO/Realme/OnePlus)."
+    local brand_lc
+    brand_lc=$(echo "$brand" | tr '[:upper:]' '[:lower:]')
+    if [[ "$brand_lc" != "oppo" && "$brand_lc" != "realme" && \
+          "$brand_lc" != "oneplus" && "$brand_lc" != "xiaomi" && \
+          "$brand_lc" != "redmi" && "$brand_lc" != "poco" ]]; then
+        warn "This script targets OPPO/Realme/Xiaomi/Redmi/OnePlus devices."
         warn "Detected brand: '${brand}'. Package names may not match — proceed with caution."
         echo
     fi
@@ -188,6 +197,7 @@ debloat_analytics() {
     uninstall_pkg "com.oppoex.afterservice"        "OPPO After-Sales Diagnostics"
     uninstall_pkg "com.realme.securitycheck"       "Realme Security Analysis"
     uninstall_pkg "com.opos.cs"                    "OPOS Content Services / Hot Apps"
+    uninstall_pkg "com.coloros.diag"               "ColorOS Diagnostics Daemon"
 
     success "Analytics & telemetry debloated."
 }
@@ -235,6 +245,14 @@ debloat_coloros() {
     uninstall_pkg "com.heytap.pictorial"           "Lockscreen Magazine"
     uninstall_pkg "com.oppo.sos"                   "OPPO Emergency SOS"
     uninstall_pkg "com.oplus.encryption"           "Private Safe"
+    uninstall_pkg "com.coloros.note"               "ColorOS Notes"
+    uninstall_pkg "com.coloros.healthkit"          "ColorOS Health"
+    uninstall_pkg "com.heytap.market"              "HeyTap GetApps Market"
+    uninstall_pkg "com.oplus.voiceassistant"       "OPlus Voice Assistant"
+    uninstall_pkg "com.oplus.omoji"                "OPlus Omoji (AR Emoji)"
+    uninstall_pkg "com.oplus.babelfish"            "OPlus Babelfish Translation"
+    uninstall_pkg "com.heytap.speechassist"        "HeyTap Speech Assistant"
+    uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
 
     # Disable rather than remove (affects OTA / restore flow)
     disable_pkg "com.heytap.themestore"            "HeyTap Theme Store"
@@ -325,7 +343,131 @@ debloat_google() {
     success "Google bloatware debloated."
 }
 
-# ── 7. Full debloat (all categories) ─────────────────────────────────────────
+# ── 8. Xiaomi / Redmi Analytics, Ads & Telemetry (MIUI 14 / HyperOS) ─────────
+debloat_miui_analytics() {
+    section "Xiaomi / Redmi Analytics, Ads & Telemetry"
+    echo -e "  ${DIM}Removes MIUI/HyperOS ad services, usage trackers, and telemetry daemons.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Safe on all Xiaomi and Redmi global/India ROM builds."
+    confirm "Remove Xiaomi/Redmi analytics & ad packages?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.miui.analytics"              "MIUI Analytics (Telemetry Beacon)"
+    uninstall_pkg "com.xiaomi.joyose"               "Xiaomi Joyose (Ad & Usage Targeting)"
+    uninstall_pkg "com.miui.msa.global"             "MIUI System Ad Service"
+    uninstall_pkg "com.miui.hybrid"                 "MIUI Hybrid Ad Bridge"
+    uninstall_pkg "com.miui.systemadserver"         "MIUI System Ad Server"
+    uninstall_pkg "com.miui.contentcatcher"         "MIUI Content Catcher (Ad Feeds)"
+    uninstall_pkg "com.miui.global.mab"             "MIUI Mobile Ad Bridge (Global)"
+    uninstall_pkg "com.miui.mab"                    "MIUI Mobile Ad Bridge"
+    uninstall_pkg "com.miui.bugreport"              "MIUI Bug Report & Feedback"
+    uninstall_pkg "com.xiaomi.mipicks"              "Mi Picks (Promotional Content)"
+    uninstall_pkg "com.bsp.catchlog"                "BSP Catchlog (System Telemetry)"
+    uninstall_pkg "com.xiaomi.miservice"            "Xiaomi Mi Service Framework (Telemetry)"
+    uninstall_pkg "com.miui.catcherpatch"           "MIUI Catcher Patch"
+
+    success "Xiaomi/Redmi analytics & ad packages removed."
+}
+
+# ── 9. Xiaomi / Redmi System App Bloatware (MIUI 14 / HyperOS) ───────────────
+debloat_miui_apps() {
+    section "Xiaomi / Redmi System App Bloatware"
+    echo -e "  ${DIM}Removes pre-installed MIUI/HyperOS apps replaceable with alternatives.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Mi Pay / Xiaomi Payment — skip if actively using Xiaomi Pay."
+    confirm "Remove Xiaomi/Redmi system bloat apps?" || { info "Skipped."; return; }
+
+    # News & feed
+    uninstall_pkg "com.mi.android.globalminusscreen" "Global Minus Screen (News Feed)"
+    uninstall_pkg "com.miui.minusscreen"             "Minus Screen (Swipe-Left Feed)"
+    uninstall_pkg "com.miui.personalassistant"       "MIUI Personal Assistant (Mi Daily)"
+    uninstall_pkg "com.miui.contentextension"        "MIUI Content Extension (AI Recs)"
+    uninstall_pkg "com.miui.newhome"                 "MIUI New Home (Wallpaper Suggestions)"
+    uninstall_pkg "com.miui.suggest"                 "MIUI App Suggestions"
+    uninstall_pkg "com.miui.android.fashiongallery"  "MIUI Fashion Gallery (Lock Screen Mag)"
+    uninstall_pkg "com.miui.miwallpaper"             "MIUI AI Wallpaper"
+
+    # Multimedia & utilities
+    uninstall_pkg "com.miui.player"                  "Mi Music Player"
+    uninstall_pkg "com.miui.videoplayer"             "Mi Video Player"
+    uninstall_pkg "com.miui.notes"                   "Mi Notes"
+    uninstall_pkg "com.miui.weather"                 "Mi Weather"
+    uninstall_pkg "com.miui.compass"                 "Mi Compass"
+    uninstall_pkg "com.miui.fm"                      "Mi FM Radio"
+    uninstall_pkg "com.miui.qr"                      "MIUI QR Scanner"
+    uninstall_pkg "com.xiaomi.scanner"               "Xiaomi Smart Scanner"
+    uninstall_pkg "com.miui.supercut"                "MIUI Super Cut (Scrolling Screenshot)"
+    uninstall_pkg "com.miui.touchassistant"          "MIUI Touch Assistant (Floating Ball)"
+    uninstall_pkg "com.miui.voiceassist"             "Mi Voice Assistant"
+
+    # File sharing & cross-device
+    uninstall_pkg "com.miui.mishare.connectivity"    "Mi Share (File Transfer)"
+    uninstall_pkg "com.xiaomi.midrop"                "Mi Drop (P2P File Sharing)"
+    uninstall_pkg "com.milink.service"               "MiLink Cross-Device Service"
+
+    # Cloud & backup
+    uninstall_pkg "com.miui.cloudbackup"             "MIUI Cloud Backup"
+    uninstall_pkg "com.miui.cloudservice"            "MIUI Cloud Service"
+
+    # Smart home & IoT
+    uninstall_pkg "com.xiaomi.smarthome"             "Mi Home (Smart Home Hub)"
+
+    # Productivity (replaceable)
+    uninstall_pkg "cn.wps.xiaomi.abroad.lite"        "WPS Office Lite"
+    uninstall_pkg "com.miui.yellowpage"              "Xiaomi Yellow Pages (Caller ID)"
+
+    # Payment (skip if using)
+    uninstall_pkg "com.xiaomi.payment"               "Xiaomi Payment / Mi Pay"
+
+    # Third-party input methods bundled by OEM
+    uninstall_pkg "com.sohu.inputmethod.sogou.xiaomi" "Sogou Input Method"
+    uninstall_pkg "com.iflytek.inputmethod.miui"      "iFlytek Voice Input"
+    uninstall_pkg "com.baidu.input_mi"                "Baidu Input Method"
+
+    # Disable rather than remove (battery / security dependency)
+    disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
+
+    success "Xiaomi/Redmi system bloat removed."
+}
+
+# ── 10. OnePlus / OxygenOS Bloatware ─────────────────────────────────────────
+debloat_oneplus() {
+    section "OnePlus / OxygenOS Bloatware"
+    echo -e "  ${DIM}Removes OnePlus-specific apps and services not needed on OxygenOS 13/14.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} OPlus-namespaced packages are already covered in ColorOS sections."
+    confirm "Remove OnePlus/OxygenOS bloatware?" || { info "Skipped."; return; }
+
+    # Account & store services
+    uninstall_pkg "com.oneplus.account"              "OnePlus Account"
+    uninstall_pkg "com.oneplus.appcenter"            "OnePlus App Center"
+    uninstall_pkg "com.oneplus.store"                "OnePlus Store"
+    uninstall_pkg "com.oneplus.community"            "OnePlus Community Forum"
+    uninstall_pkg "net.oneplus.odm"                  "OnePlus ODM Service"
+
+    # Diagnostics & logging
+    uninstall_pkg "com.oneplus.logkit"               "OnePlus Log Kit (Diagnostics)"
+    uninstall_pkg "com.oneplus.brickmode"            "OnePlus Brick Mode"
+    uninstall_pkg "com.oneplus.region"               "OnePlus Region Service"
+
+    # Pre-installed apps (replaceable)
+    uninstall_pkg "com.oneplus.gallery"              "OnePlus Gallery"
+    uninstall_pkg "com.oneplus.filemanager"          "OnePlus File Manager"
+    uninstall_pkg "com.oneplus.tips"                 "OnePlus Tips"
+    uninstall_pkg "com.oneplus.weatherExt"           "OnePlus Weather Extension"
+    uninstall_pkg "com.oneplus.clipboard"            "OnePlus Clipboard"
+
+    # Wallet & health (skip if using)
+    uninstall_pkg "com.oneplus.wallet"               "OnePlus Wallet"
+    uninstall_pkg "com.oneplus.health"               "OnePlus Health"
+
+    # Game Space (disables in-game FPS/network tools if removed)
+    uninstall_pkg "com.oneplus.gamespace"            "OnePlus Game Space"
+
+    # Widgets & push notifications
+    uninstall_pkg "net.oneplus.widget"               "OnePlus Widgets"
+    uninstall_pkg "com.oneplus.push"                 "OnePlus Push Service"
+
+    success "OnePlus/OxygenOS bloatware removed."
+}
+
+# ── 11. Full debloat (all categories) ────────────────────────────────────────
 debloat_all() {
     section "Full Debloat — All Categories"
     echo -e "  ${RED}${BOLD}This will run every debloat category sequentially.${NC}"
@@ -336,6 +478,9 @@ debloat_all() {
     debloat_payments
     debloat_social
     debloat_google
+    debloat_miui_analytics
+    debloat_miui_apps
+    debloat_oneplus
 }
 
 # ── List installed packages ───────────────────────────────────────────────────
@@ -429,16 +574,19 @@ main_menu() {
         echo "  ┌─────────────────────────────────────────────────────┐"
         echo "  │                     MAIN MENU                       │"
         echo "  ├─────────────────────────────────────────────────────┤"
-        printf "  │  %-5s %-47s│\n" "[1]" "List installed packages"
-        printf "  │  %-5s %-47s│\n" "[2]" "Debloat: Analytics & Telemetry"
-        printf "  │  %-5s %-47s│\n" "[3]" "Debloat: ColorOS / OPPO bloatware"
-        printf "  │  %-5s %-47s│\n" "[4]" "Debloat: Game Space & Gaming services"
-        printf "  │  %-5s %-47s│\n" "[5]" "Debloat: Payment & Financial apps"
-        printf "  │  %-5s %-47s│\n" "[6]" "Debloat: Facebook & Social preloads"
-        printf "  │  %-5s %-47s│\n" "[7]" "Debloat: Google bloatware"
-        printf "  │  %-5s %-47s│\n" "[8]" "Debloat: ALL categories (full clean)"
-        printf "  │  %-5s %-47s│\n" "[9]" "Custom uninstall"
-        printf "  │  %-5s %-47s│\n" "[r]" "Reinstall / restore a package"
+        printf "  │  %-5s %-47s│\n" "[1]"  "List installed packages"
+        printf "  │  %-5s %-47s│\n" "[2]"  "Debloat: Analytics & Telemetry (ColorOS)"
+        printf "  │  %-5s %-47s│\n" "[3]"  "Debloat: ColorOS / OPPO bloatware"
+        printf "  │  %-5s %-47s│\n" "[4]"  "Debloat: Game Space & Gaming services"
+        printf "  │  %-5s %-47s│\n" "[5]"  "Debloat: Payment & Financial apps"
+        printf "  │  %-5s %-47s│\n" "[6]"  "Debloat: Facebook & Social preloads"
+        printf "  │  %-5s %-47s│\n" "[7]"  "Debloat: Google bloatware"
+        printf "  │  %-5s %-47s│\n" "[8]"  "Debloat: ALL categories (full clean)"
+        printf "  │  %-5s %-47s│\n" "[9]"  "Custom uninstall"
+        printf "  │  %-5s %-47s│\n" "[10]" "Debloat: Xiaomi/Redmi Analytics & Ads"
+        printf "  │  %-5s %-47s│\n" "[11]" "Debloat: Xiaomi/Redmi System Apps"
+        printf "  │  %-5s %-47s│\n" "[12]" "Debloat: OnePlus / OxygenOS bloatware"
+        printf "  │  %-5s %-47s│\n" "[r]"  "Reinstall / restore a package"
         echo "  │                                                     │"
         echo -ne "  │  [d]  Dry-run mode  : "; echo -e "${dr_status}${BOLD}${BLUE}                              │"
         echo -ne "  │  [l]  Logging       : "; echo -e "${log_status}${BOLD}${BLUE}                              │"
@@ -461,6 +609,9 @@ main_menu() {
             7) debloat_google ;;
             8) debloat_all ;;
             9) custom_uninstall ;;
+            10) debloat_miui_analytics ;;
+            11) debloat_miui_apps ;;
+            12) debloat_oneplus ;;
             r|R) reinstall_pkg ;;
             d|D) toggle_dry_run ;;
             l|L) toggle_logging ;;
