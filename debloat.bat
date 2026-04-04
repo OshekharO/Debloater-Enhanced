@@ -1,423 +1,447 @@
 @echo off
+setlocal enabledelayedexpansion
 
-:: Version 1.3
-:: Author: [Saksham Shekher]
+:: =============================================================================
+:: Debloater Enhanced - ColorOS 13.1 Edition
+:: Version 2.0  |  Author: Saksham Shekher
+:: Targets: OPPO / Realme devices running ColorOS 13.1 (Android 13)
+:: =============================================================================
+:: DISCLAIMER: Use at your own risk. Review each category before proceeding.
+:: To restore any removed package:
+::   adb shell cmd package install-existing <package.name>
+:: =============================================================================
 
+:: ── ANSI color support (Windows 10 v1511+) ───────────────────────────────────
+for /f %%a in ('echo prompt $E^| cmd') do set "ESC=%%a"
+set "RED=%ESC%[31m"
+set "GREEN=%ESC%[32m"
+set "YELLOW=%ESC%[33m"
+set "BLUE=%ESC%[1;34m"
+set "MAGENTA=%ESC%[35m"
+set "CYAN=%ESC%[36m"
+set "BOLD=%ESC%[1m"
+set "DIM=%ESC%[2m"
+set "NC=%ESC%[0m"
+
+:: ── Runtime state ─────────────────────────────────────────────────────────────
+set DRY_RUN=0
+set LOG_ENABLED=0
+set REMOVED_COUNT=0
+for /f "tokens=1-4 delims=/ " %%a in ("%DATE%") do set "DATESTAMP=%%d%%b%%c"
+for /f "tokens=1-3 delims=:." %%a in ("%TIME: =0%") do set "TIMESTAMP=%%a%%b%%c"
+set "LOG_FILE=debloater_%DATESTAMP%_%TIMESTAMP%.log"
+
+cls
+call :print_banner
+call :check_adb
+call :check_device
+call :print_device_info
+call :main_menu
+goto :eof
+
+:: =============================================================================
+:print_banner
 echo.
-echo "================================================================="
-echo "                 Debloater Enhanced (Version 1.3)                "
-echo "================================================================="
-echo "Author: [Saksham Shekher]                                        "
-echo "Warning: Debloat at your own risk!                               "
+echo %MAGENTA%%BOLD%  +========================================================+
+echo   ^|    Debloater Enhanced - ColorOS 13.1 Edition          ^|
+echo   ^|                    Version 2.0                        ^|
+echo   +========================================================+%NC%
+echo.
+echo   %DIM%Author  : Saksham Shekher%NC%
+echo   %RED%%BOLD%WARNING : Debloat at your own risk!%NC%
+echo   %DIM%Tip     : Enable dry-run [d] first to preview changes.%NC%
+echo.
+goto :eof
+
+:: =============================================================================
+:check_adb
+where adb >nul 2>&1
+if %errorlevel% neq 0 (
+    echo   %RED%[ERR]%NC%   ADB not found in PATH.
+    echo          Install Android Platform Tools and add to PATH.
+    echo          Download: https://developer.android.com/studio/releases/platform-tools
+    pause
+    exit /b 1
+)
+goto :eof
+
+:: =============================================================================
+:check_device
+for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set "DEVICE_FOUND=%%a"
+if not defined DEVICE_FOUND (
+    echo   %RED%[ERR]%NC%   No authorised device detected.
+    echo.
+    echo          Steps to fix:
+    echo          1. Enable USB Debugging: Settings - About Phone - tap Build Number x7
+    echo          2. Connect via USB and tap Allow on device prompt
+    echo          3. Ensure your USB cable supports data transfer
+    echo.
+    pause
+    exit /b 1
+)
+goto :eof
+
+:: =============================================================================
+:print_device_info
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.model 2^>nul') do set "DEVICE_MODEL=%%a"
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand 2^>nul') do set "DEVICE_BRAND=%%a"
+for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release 2^>nul') do set "ANDROID_VER=%%a"
+for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.oplusrom.display 2^>nul') do set "COLOROS_VER=%%a"
+if not defined COLOROS_VER (
+    for /f "tokens=*" %%a in ('adb shell getprop ro.coloros.version.display 2^>nul') do set "COLOROS_VER=%%a"
+)
+if not defined COLOROS_VER set "COLOROS_VER=N/A"
+
+echo   %BOLD%Connected Device%NC%
+echo   +-----------------------------------+
+echo   ^|  Model   : !DEVICE_MODEL!
+echo   ^|  Brand   : !DEVICE_BRAND!
+echo   ^|  Android : !ANDROID_VER!
+echo   ^|  ColorOS : !COLOROS_VER!
+echo   +-----------------------------------+
+echo.
+goto :eof
+
+:: =============================================================================
+:: :uninstall_pkg  %1=package  %2=friendly-name
+:uninstall_pkg
+adb shell pm list packages 2>nul | findstr /c:"package:%~1" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo   %DIM%  SKIP    %~1 (not installed)%NC%
+    goto :eof
+)
+if !DRY_RUN!==1 (
+    echo   %YELLOW%  DRY-RUN%NC% Would remove: %BOLD%%~2%NC% ^(%~1^)
+    goto :eof
+)
+for /f "tokens=*" %%r in ('adb shell pm uninstall --user 0 "%~1" 2^>^&1') do set "PM_RESULT=%%r"
+echo !PM_RESULT! | findstr /c:"Success" >nul 2>&1
+if !errorlevel!==0 (
+    echo   %GREEN%  REMOVED%NC% %BOLD%%~2%NC% ^(%~1^)
+    set /a REMOVED_COUNT+=1
+    if !LOG_ENABLED!==1 echo REMOVED %~1 - %~2 >> "!LOG_FILE!"
+) else (
+    echo   %RED%  FAILED%NC%  %BOLD%%~2%NC% ^(%~1^)
+    if !LOG_ENABLED!==1 echo FAILED  %~1 - %~2 >> "!LOG_FILE!"
+)
+goto :eof
+
+:: =============================================================================
+:: :disable_pkg  %1=package  %2=friendly-name
+:disable_pkg
+adb shell pm list packages 2>nul | findstr /c:"package:%~1" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo   %DIM%  SKIP    %~1 (not installed)%NC%
+    goto :eof
+)
+if !DRY_RUN!==1 (
+    echo   %YELLOW%  DRY-RUN%NC% Would disable: %BOLD%%~2%NC% ^(%~1^)
+    goto :eof
+)
+for /f "tokens=*" %%r in ('adb shell pm disable-user --user 0 "%~1" 2^>^&1') do set "PM_RESULT=%%r"
+echo !PM_RESULT! | findstr /i "disabled" >nul 2>&1
+if !errorlevel!==0 (
+    echo   %CYAN%  DISABLED%NC% %BOLD%%~2%NC% ^(%~1^)
+    if !LOG_ENABLED!==1 echo DISABLED %~1 - %~2 >> "!LOG_FILE!"
+) else (
+    echo   %RED%  FAILED%NC%  disable %BOLD%%~2%NC% ^(%~1^)
+)
+goto :eof
+
+:: =============================================================================
+:: :confirm  %1=prompt  -> sets CONFIRMED=1 if user types "yes"
+:confirm
+set "CONFIRMED=0"
+echo.
+echo   %YELLOW%%~1%NC%
+set /p "ANSWER=  Type yes to proceed, anything else to cancel: "
+if /i "!ANSWER!"=="yes" set "CONFIRMED=1"
+goto :eof
+
+:: =============================================================================
+:debloat_analytics
+echo.
+echo %BLUE%  == Analytics, Telemetry ^& Spyware ==%NC%
+echo   %DIM%Removes silent data-collection, crash reporting and ad-serving components.%NC%
+call :confirm "Remove analytics & telemetry packages?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.heytap.habit.analysis"     "HeyTap Intelligent Analytics"
+call :uninstall_pkg "com.nearme.statistics.rom"      "NearMe ROM Statistics"
+call :uninstall_pkg "com.oplus.logkit"               "OPlus Feedback / Log Kit"
+call :uninstall_pkg "com.oplus.crashbox"             "OPlus CrashBox"
+call :uninstall_pkg "com.oplus.statistical"          "OPlus Statistical Service"
+call :uninstall_pkg "com.tencent.soter.soterserver"  "Tencent Soter Server (Telemetry)"
+call :uninstall_pkg "com.coloros.activation"         "ColorOS E-Warranty / Activation"
+call :uninstall_pkg "com.oplus.stdid"                "OPlus Standard ID Service"
+call :uninstall_pkg "com.oplus.lfeh"                 "OPlus LFEHer (Behaviour Tracking)"
+call :uninstall_pkg "com.oppoex.afterservice"        "OPPO After-Sales Diagnostics"
+call :uninstall_pkg "com.realme.securitycheck"       "Realme Security Analysis"
+call :uninstall_pkg "com.opos.cs"                    "OPOS Content Services / Hot Apps"
+
+echo   %GREEN%[OK]%NC%    Analytics ^& telemetry debloated.
+goto :eof
+
+:: =============================================================================
+:debloat_coloros
+echo.
+echo %BLUE%  == ColorOS / OPPO System Bloatware ==%NC%
+echo   %DIM%Removes pre-installed OPPO/Realme apps not essential to ColorOS 13.1.%NC%
+call :confirm "Remove ColorOS bloatware?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.heytap.browser"             "HeyTap Browser"
+call :uninstall_pkg "com.oppo.quicksearchbox"        "OPPO Home Screen Search"
+call :uninstall_pkg "com.heytap.music"               "HeyTap Music"
+call :uninstall_pkg "com.coloros.video"              "ColorOS Video Player"
+call :uninstall_pkg "com.realme.movieshot"           "Realme MovieShot / Combine Captions"
+call :uninstall_pkg "com.heytap.cloud"               "HeyTap Cloud"
+call :uninstall_pkg "com.coloros.backuprestore"      "ColorOS Backup & Restore"
+call :uninstall_pkg "com.realmecomm.app"             "Realme Community"
+call :uninstall_pkg "com.heytap.usercenter"          "My OPPO / HeyTap User Centre"
+call :uninstall_pkg "com.coloros.compass2"           "ColorOS Compass"
+call :uninstall_pkg "com.coloros.oshare"             "O-Share (File Transfer)"
+call :uninstall_pkg "com.coloros.ocrscanner"         "ColorOS Smart Scan (OCR)"
+call :uninstall_pkg "com.coloros.smartdrive"         "ColorOS Smart Driving"
+call :uninstall_pkg "com.coloros.oppomultiapp"       "OPPO Clone Phone"
+call :uninstall_pkg "com.oplus.multiapp"             "OPlus App Cloner"
+call :uninstall_pkg "com.oppo.opperationManual"      "OPPO User Guide / Manual"
+call :uninstall_pkg "com.os.docvault"                "Doc Vault"
+call :uninstall_pkg "com.redteamobile.roaming"       "O-Roaming (eSIM Roaming)"
+call :uninstall_pkg "com.nearme.atlas"               "OPPO Atlas"
+call :uninstall_pkg "com.heytap.accessory"           "Quick Device Connect"
+call :uninstall_pkg "com.realme.wellbeing"           "Realme Wellbeing / Sleep Capsule"
+call :uninstall_pkg "com.oplus.linker"               "OPlus PC Connect"
+call :uninstall_pkg "com.oplus.synergy"              "Hey Synergy (Cross-Device)"
+call :uninstall_pkg "com.finshell.fin"               "Finshell"
+call :uninstall_pkg "com.oplus.cosa"                 "App Enhancement Engine (COSA)"
+call :uninstall_pkg "com.heytap.pictorial"           "Lockscreen Magazine"
+call :uninstall_pkg "com.oppo.sos"                   "OPPO Emergency SOS"
+call :uninstall_pkg "com.oplus.encryption"           "Private Safe"
+call :disable_pkg   "com.heytap.themestore"          "HeyTap Theme Store"
+call :disable_pkg   "com.coloros.phonemanager"       "ColorOS Phone Manager"
+call :disable_pkg   "com.android.fmradio"            "FM Radio"
+call :disable_pkg   "com.glance.internet"            "Glance (Lock Screen Ads)"
+
+echo   %GREEN%[OK]%NC%    ColorOS bloatware debloated.
+goto :eof
+
+:: =============================================================================
+:debloat_gaming
+echo.
+echo %BLUE%  == Game Space ^& Gaming Services ==%NC%
+echo   %DIM%Removes Game Space UI, HeyFun platform and associated gaming services.%NC%
+echo   %YELLOW%[WARN]%NC%  Removing Game Space disables its in-game FPS and network optimisations.
+call :confirm "Remove game-related bloatware?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.coloros.gamespaceui"        "ColorOS Game Space UI"
+call :uninstall_pkg "com.coloros.gamespace"          "ColorOS Game Space Service"
+call :uninstall_pkg "com.heytap.quickgame"           "HeyTap HeyFun / Quick Game"
+call :uninstall_pkg "com.oplus.games"                "OPlus Games Platform"
+call :uninstall_pkg "com.nearme.game.platform"       "NearMe Game Platform"
+
+echo   %GREEN%[OK]%NC%    Gaming bloatware removed.
+goto :eof
+
+:: =============================================================================
+:debloat_payments
+echo.
+echo %BLUE%  == Payment ^& Financial Apps ==%NC%
+echo   %DIM%Removes pre-installed regional payment and banking apps.%NC%
+echo   %YELLOW%[WARN]%NC%  Skip this category if you actively use any of these services.
+call :confirm "Remove payment & financial apps?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.oplus.pay"                  "OPlus Pay / Secure Payment"
+call :uninstall_pkg "com.coloros.securepay"          "ColorOS Secure Pay"
+call :uninstall_pkg "com.realmepay.payments"         "Realme PaySa"
+
+echo   %GREEN%[OK]%NC%    Payment apps removed.
+goto :eof
+
+:: =============================================================================
+:debloat_social
+echo.
+echo %BLUE%  == Facebook ^& Social Media Preloads ==%NC%
+echo   %DIM%Removes Facebook system-level preloads and silent installer components.%NC%
+call :confirm "Remove Facebook & social preloads?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.facebook.services"          "Facebook Services"
+call :uninstall_pkg "com.facebook.appmanager"        "Facebook App Manager"
+call :uninstall_pkg "com.facebook.system"            "Facebook System"
+call :uninstall_pkg "com.facebook.katana"            "Facebook (Katana)"
+
+echo   %GREEN%[OK]%NC%    Social media preloads removed.
+goto :eof
+
+:: =============================================================================
+:debloat_google
+echo.
+echo %BLUE%  == Google Bloatware ==%NC%
+echo   %DIM%Removes non-essential Google apps. Core GMS services are NOT touched.%NC%
+echo   %YELLOW%[WARN]%NC%  Removing Assistant may break some Google integrations.
+call :confirm "Remove Google bloatware?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
+
+call :uninstall_pkg "com.google.android.apps.tachyon"              "Google Meet / Duo"
+call :uninstall_pkg "com.google.android.apps.nbu.paisa.user"       "Google Pay (GPay India)"
+call :uninstall_pkg "com.google.android.apps.subscriptions.red"    "Google One"
+call :uninstall_pkg "com.google.android.marvin.talkback"           "TalkBack (Accessibility)"
+call :uninstall_pkg "com.google.android.keep"                      "Google Keep Notes"
+call :uninstall_pkg "com.google.android.music"                     "Google Play Music (legacy)"
+call :uninstall_pkg "com.google.android.videos"                    "Google Play Movies & TV"
+call :uninstall_pkg "com.google.android.apps.books"                "Google Play Books"
+call :uninstall_pkg "com.android.hotwordenrollment.okgoogle"       "OK Google Hotword Enrolment"
+call :uninstall_pkg "com.google.android.apps.googleassistant"      "Google Assistant"
+call :uninstall_pkg "com.google.android.youtube"                   "YouTube"
+call :uninstall_pkg "com.google.android.apps.wellbeing"            "Google Digital Wellbeing"
+call :uninstall_pkg "com.google.android.apps.podcasts"             "Google Podcasts"
+call :uninstall_pkg "com.google.android.apps.youtube.music"        "YouTube Music"
+call :uninstall_pkg "com.google.android.apps.nbu.files"            "Files by Google"
+call :uninstall_pkg "com.google.ar.core"                           "Google AR Core"
+call :uninstall_pkg "com.google.android.printservice.recommendation" "Print Service Recommender"
+call :uninstall_pkg "com.google.ar.lens"                           "Google Lens (AR)"
+call :uninstall_pkg "com.google.android.apps.docs"                 "Google Drive / Docs"
+call :uninstall_pkg "com.google.android.apps.photos"               "Google Photos"
+call :uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
+call :uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
+call :disable_pkg   "com.android.stk"                              "SIM Toolkit"
+call :disable_pkg   "com.android.nfc"                              "NFC Service"
+
+echo   %GREEN%[OK]%NC%    Google bloatware debloated.
+goto :eof
+
+:: =============================================================================
+:debloat_all
+echo.
+echo %BLUE%  == Full Debloat - All Categories ==%NC%
+echo   %RED%%BOLD%This will run every debloat category sequentially.%NC%
+echo   %YELLOW%Recommended for a fresh setup. Confirm each category individually.%NC%
+call :debloat_analytics
+call :debloat_coloros
+call :debloat_gaming
+call :debloat_payments
+call :debloat_social
+call :debloat_google
+goto :eof
+
+:: =============================================================================
+:list_packages
+echo.
+echo %BLUE%  == Installed Packages ==%NC%
+set /p "FILTER=  Filter by keyword (leave blank to list all): "
+echo.
+if defined FILTER (
+    adb shell pm list packages 2>nul | findstr /i "!FILTER!"
+) else (
+    adb shell pm list packages 2>nul
+)
+echo.
+goto :eof
+
+:: =============================================================================
+:reinstall_pkg
+echo.
+echo %BLUE%  == Reinstall Package ==%NC%
+set /p "PKG=  Enter package name to reinstall: "
+if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
+echo   %CYAN%[INFO]%NC%  Reinstalling !PKG!...
+adb shell cmd package install-existing "!PKG!"
+goto :eof
+
+:: =============================================================================
+:custom_uninstall
+echo.
+echo %BLUE%  == Custom Package Removal ==%NC%
+set /p "PKG=  Enter package name to uninstall: "
+if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
+call :confirm "Uninstall !PKG!?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Cancelled. & goto :eof)
+call :uninstall_pkg "!PKG!" "!PKG!"
+goto :eof
+
+:: =============================================================================
+:toggle_dry_run
+if !DRY_RUN!==0 (
+    set DRY_RUN=1
+    echo   %YELLOW%[WARN]%NC%  Dry-run ENABLED. No changes will be made to the device.
+) else (
+    set DRY_RUN=0
+    echo   %GREEN%[OK]%NC%    Dry-run DISABLED. Changes will now be applied to the device.
+)
+goto :eof
+
+:: =============================================================================
+:toggle_logging
+if !LOG_ENABLED!==0 (
+    set LOG_ENABLED=1
+    echo   %GREEN%[OK]%NC%    Logging ENABLED - !LOG_FILE!
+    echo Session started %DATE% %TIME% >> "!LOG_FILE!"
+) else (
+    set LOG_ENABLED=0
+    echo   %CYAN%[INFO]%NC%  Logging disabled.
+)
+goto :eof
+
+:: =============================================================================
+:print_summary
+echo.
+echo %BLUE%  == Session Summary ==%NC%
+echo   %BOLD%Packages removed this session:%NC% !REMOVED_COUNT!
+echo.
+echo   %GREEN%%BOLD%To restore any removed package:%NC%
+echo   %DIM%adb shell cmd package install-existing ^<package.name^>%NC%
+echo.
+goto :eof
+
+:: =============================================================================
+:main_menu
+:menu_loop
+if !DRY_RUN!==1 (set "DR_STAT=%YELLOW%ON %NC%") else (set "DR_STAT=%GREEN%OFF%NC%")
+if !LOG_ENABLED!==1 (set "LOG_STAT=%GREEN%ON %NC%") else (set "LOG_STAT=%DIM%OFF%NC%")
+echo.
+echo %BLUE%%BOLD%  +=====================================================+
+echo   ^|                    MAIN MENU                       ^|
+echo   +-----------------------------------------------------+
+echo   ^|  [1]  List installed packages                      ^|
+echo   ^|  [2]  Debloat: Analytics ^& Telemetry               ^|
+echo   ^|  [3]  Debloat: ColorOS / OPPO bloatware            ^|
+echo   ^|  [4]  Debloat: Game Space ^& Gaming services        ^|
+echo   ^|  [5]  Debloat: Payment ^& Financial apps            ^|
+echo   ^|  [6]  Debloat: Facebook ^& Social preloads          ^|
+echo   ^|  [7]  Debloat: Google bloatware                    ^|
+echo   ^|  [8]  Debloat: ALL categories (full clean)         ^|
+echo   ^|  [9]  Custom uninstall                             ^|
+echo   ^|  [r]  Reinstall / restore a package                ^|%NC%
+echo   ^|  [d]  Dry-run   : !DR_STAT!                              ^|
+echo   ^|  [l]  Logging   : !LOG_STAT!                             ^|
+echo %BLUE%%BOLD%  ^|  [s]  Show session summary                         ^|
+echo   ^|  [0]  Exit                                         ^|
+echo   +=====================================================+%NC%
 echo.
 
-rem Get the device details
-for /f "tokens=*" %%a in ('adb shell getprop ro.product.model') do set DEVICE_MODEL=%%a
-for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand') do set DEVICE_BRAND=%%a
-for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release') do set ANDROID=%%a
+set /p "OPTION=  Enter option: "
 
-echo
-echo Model:       %DEVICE_MODEL%
-echo Brand:       %DEVICE_BRAND%
-echo Android:     %ANDROID%
-echo.
-
-:menu
-echo 1  = List installed applications
-echo 2  = Debloat Realme Apps
-echo 3  = Debloat Google Apps
-echo 4  = Debloat Xiaomi Apps
-echo 5  = Custom uninstall
-echo 0  = Exit
-echo.
-
-set /p option=Enter an option: 
-
-if %option%==1 (
-    echo.
-    echo Listing installed applications...
-    adb shell pm list packages -f
-
-    echo.
-    echo =================================================================
-    echo                 Installed Applications Listed.                  
-    echo =================================================================
-    echo.
-
-    goto postprocess
+if "!OPTION!"=="1" (call :list_packages        & goto menu_loop)
+if "!OPTION!"=="2" (call :debloat_analytics    & goto menu_loop)
+if "!OPTION!"=="3" (call :debloat_coloros      & goto menu_loop)
+if "!OPTION!"=="4" (call :debloat_gaming       & goto menu_loop)
+if "!OPTION!"=="5" (call :debloat_payments     & goto menu_loop)
+if "!OPTION!"=="6" (call :debloat_social       & goto menu_loop)
+if "!OPTION!"=="7" (call :debloat_google       & goto menu_loop)
+if "!OPTION!"=="8" (call :debloat_all          & goto menu_loop)
+if "!OPTION!"=="9" (call :custom_uninstall     & goto menu_loop)
+if /i "!OPTION!"=="r" (call :reinstall_pkg     & goto menu_loop)
+if /i "!OPTION!"=="d" (call :toggle_dry_run    & goto menu_loop)
+if /i "!OPTION!"=="l" (call :toggle_logging    & goto menu_loop)
+if /i "!OPTION!"=="s" (call :print_summary     & goto menu_loop)
+if "!OPTION!"=="0" (
+    call :print_summary
+    echo   %CYAN%[INFO]%NC%  Exiting. Enjoy your optimised device!
+    exit /b 0
 )
 
-if %option%==2 (
-    echo.
-    echo Uninstalling Hot Apps...
-    adb shell pm uninstall --user 0 com.opos.cs
-
-    echo Uninstalling Realme Community...
-    adb shell pm uninstall --user 0 com.realmecomm.app
-
-    echo Uninstalling Realme Music...
-    adb shell pm uninstall --user 0 com.heytap.music
-
-    echo Uninstalling Lockscreen Magazine...
-    adb shell pm uninstall --user 0 com.heytap.pictorial
-
-    echo Uninstalling Homescreen Search...
-    adb shell pm uninstall --user 0 com.oppo.quicksearchbox
-
-    echo Uninstalling Video Player...
-    adb shell pm uninstall --user 0 com.coloros.video
-
-    echo Uninstalling Realme Browser...
-    adb shell pm uninstall --user 0 com.heytap.browser
-
-    echo Uninstalling Tencent Telemetry...
-    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
-
-    echo Uninstalling App Cloner...
-    adb shell pm uninstall --user 0 com.oplus.multiapp
-
-    echo Uninstalling Emergency SOS...
-    adb shell pm uninstall --user 0 com.oppo.sos
-
-    echo Uninstalling Compass...
-    adb shell pm uninstall --user 0 com.coloros.compass2
-
-    echo Uninstalling Realme Share...
-    adb shell pm uninstall --user 0 com.coloros.oshare
-
-    echo Uninstalling HeyFun...
-    adb shell pm uninstall --user 0 com.heytap.quickgame
-
-    echo Uninstalling Quick Device Connect...
-    adb shell pm uninstall --user 0 com.heytap.accessory
-
-    echo Uninstalling Sleep Capsule...
-    adb shell pm uninstall --user 0 com.realme.wellbeing
-
-    echo Uninstalling User Guide...
-    adb shell pm uninstall --user 0 com.oppo.opperationManual
-
-    echo Uninstalling OPPO Clone Phone...
-    adb shell pm uninstall --user 0 com.coloros.oppomultiapp
-    adb shell pm uninstall --user 0 com.coloros.backuprestore
-
-    echo Uninstalling Game Space UI...
-    adb shell pm uninstall --user 0 com.coloros.gamespaceui
-    adb shell pm uninstall --user 0 com.coloros.gamespace
-
-    echo Uninstalling Doc Vault...
-    adb shell pm uninstall --user 0 com.os.docvault
-
-    echo Uninstalling Finshell...
-    adb shell pm uninstall --user 0 com.finshell.fin
-
-    echo Uninstalling My Realme...
-    adb shell pm uninstall --user 0 com.heytap.usercenter
-
-    echo Uninstalling Oroaming...
-    adb shell pm uninstall --user 0 com.redteamobile.roaming
-
-    echo Uninstalling Secure Payment...
-    adb shell pm uninstall --user 0 com.oplus.pay
-
-    echo Uninstalling Secure Payment...
-    adb shell pm uninstall --user 0 com.nearme.atlas
-
-    echo Uninstalling Realme Cloud...
-    adb shell pm uninstall --user 0 com.heytap.cloud
-
-    echo Uninstalling Intelligent Analytics System...
-    adb shell pm uninstall --user 0 com.heytap.habit.analysis
-
-    echo Uninstalling E-warranty card...
-    adb shell pm uninstall --user 0 com.coloros.activation
-
-    echo Uninstalling Smart Driving...
-    adb shell pm uninstall --user 0 com.coloros.smartdrive
-
-    echo Uninstalling App Enhancement Services...
-    adb shell pm uninstall --user 0 com.oplus.cosa
-
-    echo Uninstalling Oplus LFEHer...
-    adb shell pm uninstall --user 0 com.oplus.lfeh
-
-    echo Uninstalling StdID...
-    adb shell pm uninstall --user 0 com.oplus.stdid
-
-    echo Uninstalling Hey Synergy...
-    adb shell pm uninstall --user 0 com.oplus.synergy
-
-    echo Uninstalling Security Analysis...
-    adb shell pm uninstall --user 0 com.realme.securitycheck
-
-    echo Uninstalling Payment Protection...
-    adb shell pm uninstall --user 0 com.coloros.securepay
-
-    echo Uninstalling Realme Paysa...
-    adb shell pm uninstall --user 0 com.realmepay.payments
-
-    echo Uninstalling Realme Feedback...
-    adb shell pm uninstall --user 0 com.oplus.logkit
-
-    echo Uninstalling CrashBox...
-    adb shell pm uninstall --user 0 com.oplus.crashbox
-
-    echo Uninstalling After-Sales Service...
-    adb shell pm uninstall --user 0 com.oppoex.afterservice
-
-    echo Uninstalling Combine Captions...
-    adb shell pm uninstall --user 0 com.realme.movieshot
-
-    echo Uninstalling Games...
-    adb shell pm uninstall --user 0 com.oplus.games
-
-    echo Uninstalling Smart Scan...
-    adb shell pm uninstall --user 0 com.coloros.ocrscanner
-
-    echo Uninstalling PC Connect...
-    adb shell pm uninstall --user 0 com.oplus.linker
-
-    echo Uninstalling Private Safe...
-    adb shell pm uninstall --user 0 com.oplus.encryption
-
-    echo Uninstalling Facebook Services...
-    adb shell pm uninstall --user 0 com.facebook.services
-
-    echo Uninstalling Facebook Appmanager...
-    adb shell pm uninstall --user 0 com.facebook.appmanager
-
-    echo Uninstalling Facebook System...
-    adb shell pm uninstall --user 0 com.facebook.system
-
-    echo Uninstalling Facebook Katana...
-    adb shell pm uninstall --user 0 com.facebook.katana
-
-    echo Uninstalling Statistics...
-    adb shell pm uninstall --user 0 com.nearme.statistics.rom
-
-    echo Disabling Theme Store...
-    adb shell pm disable-user --user 0 com.heytap.themestore
-
-    echo Disabling FM Radio...
-    adb shell pm disable-user --user 0 com.android.fmradio
-
-    echo Disabling Phone Manager...
-    adb shell pm disable-user --user 0 com.coloros.phonemanager
-
-    echo Disabling Glance...
-    adb shell pm disable-user  --user 0 com.glance.internet
-
-    echo.
-    echo =================================================================
-    echo                  Realme Apps Debloated.                         
-    echo =================================================================
-    echo.
-
-    goto postprocess
-)
-
-if %option%==3 (
-    echo.
-    echo Uninstalling Google Duo...
-    adb shell pm uninstall --user 0 com.google.android.apps.tachyon
-
-    echo Uninstalling Google Pay...
-    adb shell pm uninstall --user 0 com.google.android.apps.nbu.paisa.user
-
-    echo Uninstalling Google One...
-    adb shell pm uninstall --user 0 com.google.android.apps.subscriptions.red
-
-    echo Uninstalling Accessibility Suite...
-    adb shell pm uninstall --user 0 com.google.android.marvin.talkback
-
-    echo Uninstalling Keep Notes...
-    adb shell pm uninstall -k --user 0 com.google.android.keep
-
-    echo Uninstalling Google Play Music...
-    adb shell pm uninstall --user 0 com.google.android.music
-
-    echo Uninstalling Google Play Movies...
-    adb shell pm uninstall --user 0 com.google.android.videos
-
-    echo Uninstalling Google Play Books...
-    adb shell pm uninstall --user 0 com.google.android.apps.books
-
-    echo Uninstalling Google Assistant...
-    adb shell pm uninstall --user 0 com.android.hotwordenrollment.okgoogle
-    adb shell pm uninstall --user 0 com.google.android.apps.googleassistant
-
-    echo Uninstalling YouTube...
-    adb shell pm uninstall --user 0 com.google.android.youtube
-
-    echo Uninstalling Digital Wellbeing...
-    adb shell pm uninstall --user 0 com.google.android.apps.wellbeing
-
-    echo Uninstalling Google Podcast...
-    adb shell pm uninstall --user 0 com.google.android.apps.podcasts
-
-    echo Uninstalling Youtube Music...
-    adb shell pm uninstall --user 0 com.google.android.apps.youtube.music
-
-    echo Uninstalling Files By Google...
-    adb shell pm uninstall --user 0 com.google.android.apps.nbu.files
-
-    echo Uninstalling AR Core...
-    adb shell pm uninstall --user 0 com.google.ar.core
-
-    echo Uninstalling Print Service Component...
-    adb shell pm uninstall --user 0 com.google.android.printservice.recommendation
-
-    echo Uninstalling Google Lens...
-    adb shell pm uninstall --user 0 com.google.ar.lens
-
-    echo Uninstalling Google Drive...
-    adb shell pm uninstall --user 0 com.google.android.apps.docs
-
-    echo Uninstalling Google Photos...
-    adb shell pm uninstall --user 0 com.google.android.apps.photos
-
-    echo Uninstalling Market Feedback Agent...
-    adb shell pm uninstall --user 0 com.google.android.feedback
-
-    echo Uninstalling Android Auto...
-    adb shell pm uninstall --user 0 com.google.android.projection.gearhead
-
-    echo Disabling SIM Toolkit...
-    adb shell pm disable-user --user 0 com.android.stk
-
-    echo Disabling NFC Service...
-    adb shell pm disable-user --user 0 com.android.nfc
-
-    echo.
-    echo =================================================================
-    echo                  Google Apps Debloated.                         
-    echo =================================================================
-    echo.
-
-    goto postprocess
-)
-
-if %option%==4 (
-    echo.
-    echo Uninstalling Mi Browser...
-    adb shell pm uninstall --user 0 com.android.browser
-
-    echo Uninstalling Mi Store...
-    adb shell pm uninstall --user 0 com.xiaomi.shop
-
-    echo Uninstalling Facebook Services...
-    adb shell pm uninstall --user 0 com.facebook.services
-
-    echo Uninstalling Facebook Appmanager...
-    adb shell pm uninstall --user 0 com.facebook.appmanager
-
-    echo Uninstalling Facebook System...
-    adb shell pm uninstall --user 0 com.facebook.system
-
-    echo Uninstalling Facebook Katana...
-    adb shell pm uninstall --user 0 com.facebook.katana
-
-    echo Uninstalling Amazon...
-    adb shell pm uninstall --user 0 in.amazon.mShop.android.shopping
-    adb shell pm uninstall --user 0 com.amazon.appmanager
-
-    echo Uninstalling Linkedin...
-    adb shell pm uninstall --user 0 com.linkedin.android
-
-    echo Uninstalling WPS...
-    adb shell pm uninstall --user 0 cn.wps.xiaomi.abroad.lite
-
-    echo Uninstalling Netflix...
-    adb shell pm uninstall --user 0 com.netflix.mediaclient
-
-    echo Uninstalling Analytics...
-    adb shell pm uninstall --user 0 com.miui.analytics
-
-    echo Uninstalling MI Feedback...
-    adb shell pm uninstall --user 0 com.miui.bugreport
-
-    echo Uninstalling Video Player...
-    adb shell pm uninstall --user 0 com.miui.videoplayer
-
-    echo Uninstalling Music Player...
-    adb shell pm uninstall --user 0 com.miui.player
-
-    echo Uninstalling Notes...
-    adb shell pm uninstall --user 0 com.miui.notes
-
-    echo Uninstalling Yellow Pages...
-    adb shell pm uninstall --user 0 com.miui.yellowpage
-
-    echo Uninstalling Main Advertising System...
-    adb shell pm uninstall --user 0 com.miui.msa.global
-    adb shell pm uninstall --user 0 com.miui.systemAdSolution
-
-    echo Uninstalling MI Games...
-    adb shell pm uninstall --user 0 com.xiaomi.glgm
-
-    echo Uninstalling Daemon...
-    adb shell pm uninstall --user 0 com.miui.daemon
-
-    echo Uninstalling Xiaomi Recording Assistant...
-    adb shell pm uninstall --user 0 com.miui.audiomonitor
-
-    echo Uninstalling CarWith...
-    adb shell pm uninstall --user 0 com.miui.carlink
-
-    echo Uninstalling Translation...
-    adb shell pm uninstall --user 0 com.miui.translation.kingsoft
-    adb shell pm uninstall --user 0 com.miui.translation.xmcloud
-    adb shell pm uninstall --user 0 com.miui.translationservice
-
-    echo Uninstalling MI Cloud...
-    adb shell pm uninstall --user 0 com.miui.cloudbackup
-    adb shell pm uninstall --user 0 com.miui.cloudservice
-    adb shell pm uninstall --user 0 com.miui.cloudservice.sysbase
-    adb shell pm uninstall --user 0 com.miui.micloudsync
-
-    echo Uninstalling MI Pay...
-    adb shell pm uninstall --user 0 com.mipay.wallet.in
-    adb shell pm uninstall --user 0 com.xiaomi.payment
-    adb shell pm uninstall --user 0 com.miui.nextpay
-    adb shell pm uninstall --user 0 com.unionpay.tsmservice.mi
-    adb shell pm uninstall --user 0 org.mipay.android.manager
-    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
-
-    echo.
-    echo =================================================================
-    echo                    Miui Apps Debloated.                          
-    echo =================================================================
-    echo.
-
-    goto postprocess
-)
-
-if %option%==5 (
-    echo.
-    set /p package=Enter package name to uninstall: 
-    echo Uninstalling %package%...
-    adb shell pm uninstall --user 0 %package%
-
-    echo.
-    echo =================================================================
-    echo                 Custom Uninstall Completed.                  
-    echo =================================================================
-    echo.
-
-    goto postprocess
-)
-
-if %option%==0 (
-    echo.
-    echo Exiting...
-    exit
-)
-
-echo Invalid option.
-goto menu
-
-:postprocess
-set /p exit=Press 0 to return to the menu: 
-if %exit%==0 (
-    goto menu
-)
+echo   %YELLOW%[WARN]%NC%  Invalid option. Please try again.
+goto menu_loop
