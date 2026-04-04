@@ -1,242 +1,489 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# =============================================================================
+# Debloater Enhanced — ColorOS 13.1 Edition
+# Version 2.0 | Author: Saksham Shekher
+# Targets: OPPO / Realme devices running ColorOS 13.1 (Android 13)
+# =============================================================================
+# DISCLAIMER: Use at your own risk. Some packages may be required for full
+# device functionality. Review each category carefully before proceeding.
+# To restore any removed package:
+#   adb shell cmd package install-existing <package.name>
+# =============================================================================
 
-# Version 1.3
-# Author: [Saksham Shekher]
+# ── ANSI color codes ──────────────────────────────────────────────────────────
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BLUE='\033[1;34m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
 
-# Function to check if the device is connected
-check_device_connected() {
-    adb devices | grep -w "device" > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "Please connect your device via USB."
+# ── Runtime state ─────────────────────────────────────────────────────────────
+DRY_RUN=false
+LOG_ENABLED=false
+LOG_FILE="debloater_$(date +%Y%m%d_%H%M%S).log"
+REMOVED_PKGS=()
+
+# ── Logging helpers ───────────────────────────────────────────────────────────
+info()    { echo -e "  ${CYAN}[INFO]${NC}  $*"; }
+success() { echo -e "  ${GREEN}[OK]${NC}    $*"; }
+warn()    { echo -e "  ${YELLOW}[WARN]${NC}  $*"; }
+error()   { echo -e "  ${RED}[ERR]${NC}   $*" >&2; }
+section() { echo -e "\n${BOLD}${BLUE}  ══ $* ══${NC}"; }
+
+log_action() {
+    $LOG_ENABLED && echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
+}
+
+# ── Banner ────────────────────────────────────────────────────────────────────
+print_banner() {
+    echo -e "${BOLD}${MAGENTA}"
+    echo "  ╔══════════════════════════════════════════════════════╗"
+    echo "  ║      Debloater Enhanced — ColorOS 13.1 Edition       ║"
+    echo "  ║                     Version 2.0                      ║"
+    echo "  ╚══════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+    echo -e "  ${DIM}Author  : Saksham Shekher${NC}"
+    echo -e "  ${RED}${BOLD}WARNING : Debloat at your own risk!${NC}"
+    echo -e "  ${DIM}Tip     : Enable dry-run [d] first to preview changes.${NC}"
+    echo
+}
+
+# ── Prerequisite checks ───────────────────────────────────────────────────────
+check_adb() {
+    if ! command -v adb &>/dev/null; then
+        error "ADB not found. Install Android Platform Tools and add 'adb' to your PATH."
+        error "Download: https://developer.android.com/studio/releases/platform-tools"
         exit 1
     fi
 }
 
-# Function to get device details
-get_device_details() {
-    DEVICE_MODEL=$(adb shell getprop ro.product.model)
-    DEVICE_BRAND=$(adb shell getprop ro.product.brand)
-    ANDROID_VERSION=$(adb shell getprop ro.build.version.release)
-
-    echo
-    echo "Model:       $DEVICE_MODEL"
-    echo "Brand:       $DEVICE_BRAND"
-    echo "Android:     $ANDROID_VERSION"
-    echo
+check_device() {
+    local count
+    count=$(adb devices 2>/dev/null | grep -c $'\tdevice$')
+    if [[ "$count" -eq 0 ]]; then
+        error "No authorised device detected."
+        warn  "  1. Enable USB Debugging (Settings → About Phone → tap Build Number ×7)"
+        warn  "  2. Connect via USB and tap 'Allow' on the device prompt"
+        warn  "  3. Confirm your USB cable supports data transfer"
+        exit 1
+    fi
+    if [[ "$count" -gt 1 ]]; then
+        warn "Multiple devices found. Using the first one. Set ANDROID_SERIAL to target a specific device."
+    fi
 }
 
-# Function to list installed applications
-list_installed_apps() {
-    echo
-    echo "Listing installed applications..."
-    adb shell pm list packages -f
+# ── Device information ────────────────────────────────────────────────────────
+print_device_info() {
+    local model brand android coloros
+    model=$(adb shell getprop ro.product.model 2>/dev/null | tr -d '\r')
+    brand=$(adb shell getprop ro.product.brand 2>/dev/null | tr -d '\r')
+    android=$(adb shell getprop ro.build.version.release 2>/dev/null | tr -d '\r')
+    coloros=$(adb shell getprop ro.build.version.oplusrom.display 2>/dev/null | tr -d '\r')
+    [[ -z "$coloros" ]] && coloros=$(adb shell getprop ro.coloros.version.display 2>/dev/null | tr -d '\r')
+    [[ -z "$coloros" ]] && coloros="N/A"
 
-    echo
-    echo "================================================================="
-    echo "                 Installed Applications Listed.                 "
-    echo "================================================================="
-    echo
-}
-
-# Function to debloat Realme apps
-debloat_realme_apps() {
-    echo
-    echo "Uninstalling Realme apps..."
-    adb shell pm uninstall --user 0 com.opos.cs
-    adb shell pm uninstall --user 0 com.realmecomm.app
-    adb shell pm uninstall --user 0 com.heytap.music
-    adb shell pm uninstall --user 0 com.heytap.pictorial
-    adb shell pm uninstall --user 0 com.oppo.quicksearchbox
-    adb shell pm uninstall --user 0 com.coloros.video
-    adb shell pm uninstall --user 0 com.heytap.browser
-    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
-    adb shell pm uninstall --user 0 com.oplus.multiapp
-    adb shell pm uninstall --user 0 com.oppo.sos
-    adb shell pm uninstall --user 0 com.coloros.compass2
-    adb shell pm uninstall --user 0 com.coloros.oshare
-    adb shell pm uninstall --user 0 com.heytap.quickgame
-    adb shell pm uninstall --user 0 com.heytap.accessory
-    adb shell pm uninstall --user 0 com.realme.wellbeing
-    adb shell pm uninstall --user 0 com.oppo.opperationManual
-    adb shell pm uninstall --user 0 com.coloros.oppomultiapp
-    adb shell pm uninstall --user 0 com.coloros.backuprestore
-    adb shell pm uninstall --user 0 com.coloros.gamespaceui
-    adb shell pm uninstall --user 0 com.coloros.gamespace
-    adb shell pm uninstall --user 0 com.os.docvault
-    adb shell pm uninstall --user 0 com.finshell.fin
-    adb shell pm uninstall --user 0 com.heytap.usercenter
-    adb shell pm uninstall --user 0 com.redteamobile.roaming
-    adb shell pm uninstall --user 0 com.oplus.pay
-    adb shell pm uninstall --user 0 com.nearme.atlas
-    adb shell pm uninstall --user 0 com.heytap.cloud
-    adb shell pm uninstall --user 0 com.heytap.habit.analysis
-    adb shell pm uninstall --user 0 com.coloros.activation
-    adb shell pm uninstall --user 0 com.coloros.smartdrive
-    adb shell pm uninstall --user 0 com.oplus.cosa
-    adb shell pm uninstall --user 0 com.oplus.lfeh
-    adb shell pm uninstall --user 0 com.oplus.stdid
-    adb shell pm uninstall --user 0 com.oplus.synergy
-    adb shell pm uninstall --user 0 com.realme.securitycheck
-    adb shell pm uninstall --user 0 com.coloros.securepay
-    adb shell pm uninstall --user 0 com.realmepay.payments
-    adb shell pm uninstall --user 0 com.oplus.logkit
-    adb shell pm uninstall --user 0 com.oplus.crashbox
-    adb shell pm uninstall --user 0 com.oppoex.afterservice
-    adb shell pm uninstall --user 0 com.realme.movieshot
-    adb shell pm uninstall --user 0 com.oplus.games
-    adb shell pm uninstall --user 0 com.coloros.ocrscanner
-    adb shell pm uninstall --user 0 com.oplus.linker
-    adb shell pm uninstall --user 0 com.oplus.encryption
-    adb shell pm uninstall --user 0 com.facebook.services
-    adb shell pm uninstall --user 0 com.facebook.appmanager
-    adb shell pm uninstall --user 0 com.facebook.system
-    adb shell pm uninstall --user 0 com.facebook.katana
-    adb shell pm uninstall --user 0 com.nearme.statistics.rom
-    adb shell pm disable-user --user 0 com.heytap.themestore
-    adb shell pm disable-user --user 0 com.android.fmradio
-    adb shell pm disable-user --user 0 com.coloros.phonemanager
-    adb shell pm disable-user --user 0 com.glance.internet
-
-    echo
-    echo "================================================================="
-    echo "                  Realme Apps Debloated.                         "
-    echo "================================================================="
-    echo
-}
-
-# Function to debloat Google apps
-debloat_google_apps() {
-    echo
-    echo "Uninstalling Google apps..."
-    adb shell pm uninstall --user 0 com.google.android.apps.tachyon
-    adb shell pm uninstall --user 0 com.google.android.apps.nbu.paisa.user
-    adb shell pm uninstall --user 0 com.google.android.apps.subscriptions.red
-    adb shell pm uninstall --user 0 com.google.android.marvin.talkback
-    adb shell pm uninstall --user 0 com.google.android.keep
-    adb shell pm uninstall --user 0 com.google.android.music
-    adb shell pm uninstall --user 0 com.google.android.videos
-    adb shell pm uninstall --user 0 com.google.android.apps.books
-    adb shell pm uninstall --user 0 com.android.hotwordenrollment.okgoogle
-    adb shell pm uninstall --user 0 com.google.android.apps.googleassistant
-    adb shell pm uninstall --user 0 com.google.android.youtube
-    adb shell pm uninstall --user 0 com.google.android.apps.wellbeing
-    adb shell pm uninstall --user 0 com.google.android.apps.podcasts
-    adb shell pm uninstall --user 0 com.google.android.apps.youtube.music
-    adb shell pm uninstall --user 0 com.google.android.apps.nbu.files
-    adb shell pm uninstall --user 0 com.google.ar.core
-    adb shell pm uninstall --user 0 com.google.android.printservice.recommendation
-    adb shell pm uninstall --user 0 com.google.ar.lens
-    adb shell pm uninstall --user 0 com.google.android.apps.docs
-    adb shell pm uninstall --user 0 com.google.android.apps.photos
-    adb shell pm uninstall --user 0 com.google.android.feedback
-    adb shell pm uninstall --user 0 com.google.android.projection.gearhead
-    adb shell pm disable-user --user 0 com.android.stk
-    adb shell pm disable-user --user 0 com.android.nfc
-
-    echo
-    echo "================================================================="
-    echo "                  Google Apps Debloated.                         "
-    echo "================================================================="
-    echo
-}
-
-# Function to debloat Xiaomi apps
-debloat_xiaomi_apps() {
-    echo
-    echo "Uninstalling Xiaomi apps..."
-    adb shell pm uninstall --user 0 com.android.browser
-    adb shell pm uninstall --user 0 com.xiaomi.shop
-    adb shell pm uninstall --user 0 com.facebook.services
-    adb shell pm uninstall --user 0 com.facebook.appmanager
-    adb shell pm uninstall --user 0 com.facebook.system
-    adb shell pm uninstall --user 0 com.facebook.katana
-    adb shell pm uninstall --user 0 in.amazon.mShop.android.shopping
-    adb shell pm uninstall --user 0 com.amazon.appmanager
-    adb shell pm uninstall --user 0 com.linkedin.android
-    adb shell pm uninstall --user 0 cn.wps.xiaomi.abroad.lite
-    adb shell pm uninstall --user 0 com.netflix.mediaclient
-    adb shell pm uninstall --user 0 com.miui.analytics
-    adb shell pm uninstall --user 0 com.miui.bugreport
-    adb shell pm uninstall --user 0 com.miui.videoplayer
-    adb shell pm uninstall --user 0 com.miui.player
-    adb shell pm uninstall --user 0 com.miui.notes
-    adb shell pm uninstall --user 0 com.miui.yellowpage
-    adb shell pm uninstall --user 0 com.miui.msa.global
-    adb shell pm uninstall --user 0 com.miui.systemAdSolution
-    adb shell pm uninstall --user 0 com.xiaomi.glgm
-    adb shell pm uninstall --user 0 com.miui.daemon
-    adb shell pm uninstall --user 0 com.miui.audiomonitor
-    adb shell pm uninstall --user 0 com.miui.carlink
-    adb shell pm uninstall --user 0 com.miui.translation.kingsoft
-    adb shell pm uninstall --user 0 com.miui.translation.xmcloud
-    adb shell pm uninstall --user 0 com.miui.translationservice
-    adb shell pm uninstall --user 0 com.miui.cloudbackup
-    adb shell pm uninstall --user 0 com.miui.cloudservice
-    adb shell pm uninstall --user 0 com.miui.cloudservice.sysbase
-    adb shell pm uninstall --user 0 com.miui.micloudsync
-    adb shell pm uninstall --user 0 com.mipay.wallet.in
-    adb shell pm uninstall --user 0 com.xiaomi.payment
-    adb shell pm uninstall --user 0 com.miui.nextpay
-    adb shell pm uninstall --user 0 com.unionpay.tsmservice.mi
-    adb shell pm uninstall --user 0 org.mipay.android.manager
-    adb shell pm uninstall --user 0 com.tencent.soter.soterserver
-
-    echo
-    echo "================================================================="
-    echo "                    Miui Apps Debloated.                         "
-    echo "================================================================="
-    echo
-}
-
-# Function to perform custom uninstall
-custom_uninstall() {
-    echo
-    read -p "Enter package name to uninstall: " package
-    echo "Uninstalling $package..."
-    adb shell pm uninstall --user 0 $package
-
-    echo
-    echo "================================================================="
-    echo "                 Custom Uninstall Completed.                     "
-    echo "================================================================="
-    echo
-}
-
-# Main menu
-main_menu() {
-    echo
-    echo "================================================================="
-    echo "                 Debloater Enhanced (Version 1.3)                "
-    echo "================================================================="
-    echo "Author: [Saksham Shekher]                                        "
-    echo "Warning: Debloat at your own risk!                               "
+    echo -e "  ${BOLD}Connected Device${NC}"
+    echo    "  ┌─────────────────────────────────┐"
+    printf  "  │  %-10s : %-19s│\n" "Model"   "$model"
+    printf  "  │  %-10s : %-19s│\n" "Brand"   "$brand"
+    printf  "  │  %-10s : %-19s│\n" "Android" "$android"
+    printf  "  │  %-10s : %-19s│\n" "ColorOS" "$coloros"
+    echo    "  └─────────────────────────────────┘"
     echo
 
-    get_device_details
-
-    while true; do
-        echo "1  = List installed applications"
-        echo "2  = Debloat Realme Apps"
-        echo "3  = Debloat Google Apps"
-        echo "4  = Debloat Xiaomi Apps"
-        echo "5  = Custom uninstall"
-        echo "0  = Exit"
+    if [[ "$brand" != "OPPO" && "$brand" != "realme" && "$brand" != "OnePlus" ]]; then
+        warn "This script targets ColorOS 13.1 (OPPO/Realme/OnePlus)."
+        warn "Detected brand: '${brand}'. Package names may not match — proceed with caution."
         echo
+    fi
+}
 
-        read -p "Enter an option: " option
+# ── Core install/remove engine ────────────────────────────────────────────────
+# Usage: uninstall_pkg <package> <friendly-name>
+uninstall_pkg() {
+    local pkg="$1" name="${2:-$1}"
 
-        case $option in
-            1) list_installed_apps;;
-            2) debloat_realme_apps;;
-            3) debloat_google_apps;;
-            4) debloat_xiaomi_apps;;
-            5) custom_uninstall;;
-            0) echo "Exiting..."; exit 0;;
-            *) echo "Invalid option.";;
+    if ! adb shell pm list packages 2>/dev/null | grep -q "^package:${pkg}$"; then
+        echo -e "  ${DIM}  SKIP    ${pkg} (not installed)${NC}"
+        log_action "SKIP    $pkg — not installed"
+        return 0
+    fi
+
+    if $DRY_RUN; then
+        echo -e "  ${YELLOW}  DRY-RUN${NC} Would remove: ${BOLD}${name}${NC} (${pkg})"
+        log_action "DRY-RUN $pkg — $name"
+        return 0
+    fi
+
+    local out
+    out=$(adb shell pm uninstall --user 0 "$pkg" 2>&1)
+    if echo "$out" | grep -q "Success"; then
+        echo -e "  ${GREEN}  REMOVED${NC} ${BOLD}${name}${NC} (${pkg})"
+        log_action "REMOVED $pkg — $name"
+        REMOVED_PKGS+=("$pkg")
+    else
+        echo -e "  ${RED}  FAILED${NC}  ${BOLD}${name}${NC} (${pkg}) → ${out}"
+        log_action "FAILED  $pkg — $name → $out"
+    fi
+}
+
+# Usage: disable_pkg <package> <friendly-name>
+disable_pkg() {
+    local pkg="$1" name="${2:-$1}"
+
+    if ! adb shell pm list packages 2>/dev/null | grep -q "^package:${pkg}$"; then
+        echo -e "  ${DIM}  SKIP    ${pkg} (not installed)${NC}"
+        return 0
+    fi
+
+    if $DRY_RUN; then
+        echo -e "  ${YELLOW}  DRY-RUN${NC} Would disable: ${BOLD}${name}${NC} (${pkg})"
+        return 0
+    fi
+
+    local out
+    out=$(adb shell pm disable-user --user 0 "$pkg" 2>&1)
+    if echo "$out" | grep -qi "disabled"; then
+        echo -e "  ${CYAN}  DISABLED${NC} ${BOLD}${name}${NC} (${pkg})"
+        log_action "DISABLED $pkg — $name"
+    else
+        echo -e "  ${RED}  FAILED${NC}  disable ${BOLD}${name}${NC} (${pkg}) → ${out}"
+        log_action "FAILED  disable $pkg — $name → $out"
+    fi
+}
+
+confirm() {
+    local prompt="${1:-Continue?}"
+    local answer
+    echo
+    echo -e "  ${YELLOW}${prompt}${NC}"
+    echo -ne "  Type ${BOLD}yes${NC} to proceed, anything else to cancel: "
+    read -r answer
+    [[ "$answer" == "yes" ]]
+}
+
+# =============================================================================
+# DEBLOAT CATEGORIES — ColorOS 13.1
+# =============================================================================
+
+# ── 1. Analytics, Telemetry & Spyware ────────────────────────────────────────
+debloat_analytics() {
+    section "Analytics, Telemetry & Spyware"
+    echo -e "  ${DIM}Removes silent data-collection, crash reporting, and ad-serving components.${NC}"
+    confirm "Remove analytics & telemetry packages?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.heytap.habit.analysis"     "HeyTap Intelligent Analytics"
+    uninstall_pkg "com.nearme.statistics.rom"      "NearMe ROM Statistics"
+    uninstall_pkg "com.oplus.logkit"               "OPlus Feedback / Log Kit"
+    uninstall_pkg "com.oplus.crashbox"             "OPlus CrashBox"
+    uninstall_pkg "com.oplus.statistical"          "OPlus Statistical Service"
+    uninstall_pkg "com.tencent.soter.soterserver"  "Tencent Soter Server (Telemetry)"
+    uninstall_pkg "com.coloros.activation"         "ColorOS E-Warranty / Activation"
+    uninstall_pkg "com.oplus.stdid"                "OPlus Standard ID Service"
+    uninstall_pkg "com.oplus.lfeh"                 "OPlus LFEHer (Behaviour Tracking)"
+    uninstall_pkg "com.oppoex.afterservice"        "OPPO After-Sales Diagnostics"
+    uninstall_pkg "com.realme.securitycheck"       "Realme Security Analysis"
+    uninstall_pkg "com.opos.cs"                    "OPOS Content Services / Hot Apps"
+
+    success "Analytics & telemetry debloated."
+}
+
+# ── 2. ColorOS / OPPO System Bloatware ───────────────────────────────────────
+debloat_coloros() {
+    section "ColorOS / OPPO System Bloatware"
+    echo -e "  ${DIM}Removes pre-installed OPPO/Realme apps not essential to ColorOS 13.1.${NC}"
+    confirm "Remove ColorOS bloatware?" || { info "Skipped."; return; }
+
+    # Browsing & search
+    uninstall_pkg "com.heytap.browser"             "HeyTap Browser"
+    uninstall_pkg "com.oppo.quicksearchbox"        "OPPO Home Screen Search"
+
+    # Multimedia
+    uninstall_pkg "com.heytap.music"               "HeyTap Music"
+    uninstall_pkg "com.coloros.video"              "ColorOS Video Player"
+    uninstall_pkg "com.realme.movieshot"           "Realme MovieShot / Combine Captions"
+
+    # Cloud & backup
+    uninstall_pkg "com.heytap.cloud"               "HeyTap Cloud"
+    uninstall_pkg "com.coloros.backuprestore"      "ColorOS Backup & Restore"
+
+    # Social & account services
+    uninstall_pkg "com.realmecomm.app"             "Realme Community"
+    uninstall_pkg "com.heytap.usercenter"          "My OPPO / HeyTap User Centre"
+
+    # Non-essential utilities
+    uninstall_pkg "com.coloros.compass2"           "ColorOS Compass"
+    uninstall_pkg "com.coloros.oshare"             "O-Share (File Transfer)"
+    uninstall_pkg "com.coloros.ocrscanner"         "ColorOS Smart Scan (OCR)"
+    uninstall_pkg "com.coloros.smartdrive"         "ColorOS Smart Driving"
+    uninstall_pkg "com.coloros.oppomultiapp"       "OPPO Clone Phone"
+    uninstall_pkg "com.oplus.multiapp"             "OPlus App Cloner"
+    uninstall_pkg "com.oppo.opperationManual"      "OPPO User Guide / Manual"
+    uninstall_pkg "com.os.docvault"                "Doc Vault"
+    uninstall_pkg "com.redteamobile.roaming"       "O-Roaming (eSIM Roaming)"
+    uninstall_pkg "com.nearme.atlas"               "OPPO Atlas"
+    uninstall_pkg "com.heytap.accessory"           "Quick Device Connect"
+    uninstall_pkg "com.realme.wellbeing"           "Realme Wellbeing / Sleep Capsule"
+    uninstall_pkg "com.oplus.linker"               "OPlus PC Connect"
+    uninstall_pkg "com.oplus.synergy"              "Hey Synergy (Cross-Device)"
+    uninstall_pkg "com.finshell.fin"               "Finshell"
+    uninstall_pkg "com.oplus.cosa"                 "App Enhancement Engine (COSA)"
+    uninstall_pkg "com.heytap.pictorial"           "Lockscreen Magazine"
+    uninstall_pkg "com.oppo.sos"                   "OPPO Emergency SOS"
+    uninstall_pkg "com.oplus.encryption"           "Private Safe"
+
+    # Disable rather than remove (affects OTA / restore flow)
+    disable_pkg "com.heytap.themestore"            "HeyTap Theme Store"
+    disable_pkg "com.coloros.phonemanager"         "ColorOS Phone Manager"
+    disable_pkg "com.android.fmradio"              "FM Radio"
+    disable_pkg "com.glance.internet"              "Glance (Lock Screen Ads)"
+
+    success "ColorOS bloatware debloated."
+}
+
+# ── 3. Game Space & Gaming Services ──────────────────────────────────────────
+debloat_gaming() {
+    section "Game Space & Gaming Services"
+    echo -e "  ${DIM}Removes Game Space UI, HeyFun platform and associated gaming services.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Removing Game Space disables its in-game FPS and network optimisations."
+    confirm "Remove game-related bloatware?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.coloros.gamespaceui"        "ColorOS Game Space UI"
+    uninstall_pkg "com.coloros.gamespace"          "ColorOS Game Space Service"
+    uninstall_pkg "com.heytap.quickgame"           "HeyTap HeyFun / Quick Game"
+    uninstall_pkg "com.oplus.games"                "OPlus Games Platform"
+    uninstall_pkg "com.nearme.game.platform"       "NearMe Game Platform"
+
+    success "Gaming bloatware removed."
+}
+
+# ── 4. Payment & Financial Apps ───────────────────────────────────────────────
+debloat_payments() {
+    section "Payment & Financial Apps"
+    echo -e "  ${DIM}Removes pre-installed regional payment and banking apps.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Skip this category if you actively use any of these services."
+    confirm "Remove payment & financial apps?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.oplus.pay"                  "OPlus Pay / Secure Payment"
+    uninstall_pkg "com.coloros.securepay"          "ColorOS Secure Pay"
+    uninstall_pkg "com.realmepay.payments"         "Realme PaySa"
+
+    success "Payment apps removed."
+}
+
+# ── 5. Facebook & Social Media Preloads ───────────────────────────────────────
+debloat_social() {
+    section "Facebook & Social Media Preloads"
+    echo -e "  ${DIM}Removes Facebook system-level preloads and silent installer components.${NC}"
+    confirm "Remove Facebook & social preloads?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.facebook.services"          "Facebook Services"
+    uninstall_pkg "com.facebook.appmanager"        "Facebook App Manager"
+    uninstall_pkg "com.facebook.system"            "Facebook System"
+    uninstall_pkg "com.facebook.katana"            "Facebook (Katana)"
+
+    success "Social media preloads removed."
+}
+
+# ── 6. Google Bloatware ───────────────────────────────────────────────────────
+debloat_google() {
+    section "Google Bloatware"
+    echo -e "  ${DIM}Removes non-essential Google apps. Core GMS services are NOT touched.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Removing Assistant may break some Google integrations."
+    confirm "Remove Google bloatware?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.google.android.apps.tachyon"              "Google Meet / Duo"
+    uninstall_pkg "com.google.android.apps.nbu.paisa.user"       "Google Pay (GPay India)"
+    uninstall_pkg "com.google.android.apps.subscriptions.red"    "Google One"
+    uninstall_pkg "com.google.android.marvin.talkback"           "TalkBack (Accessibility)"
+    uninstall_pkg "com.google.android.keep"                      "Google Keep Notes"
+    uninstall_pkg "com.google.android.music"                     "Google Play Music (legacy)"
+    uninstall_pkg "com.google.android.videos"                    "Google Play Movies & TV"
+    uninstall_pkg "com.google.android.apps.books"                "Google Play Books"
+    uninstall_pkg "com.android.hotwordenrollment.okgoogle"       "OK Google Hotword Enrolment"
+    uninstall_pkg "com.google.android.apps.googleassistant"      "Google Assistant"
+    uninstall_pkg "com.google.android.youtube"                   "YouTube"
+    uninstall_pkg "com.google.android.apps.wellbeing"            "Google Digital Wellbeing"
+    uninstall_pkg "com.google.android.apps.podcasts"             "Google Podcasts"
+    uninstall_pkg "com.google.android.apps.youtube.music"        "YouTube Music"
+    uninstall_pkg "com.google.android.apps.nbu.files"            "Files by Google"
+    uninstall_pkg "com.google.ar.core"                           "Google AR Core"
+    uninstall_pkg "com.google.android.printservice.recommendation" "Print Service Recommender"
+    uninstall_pkg "com.google.ar.lens"                           "Google Lens (AR)"
+    uninstall_pkg "com.google.android.apps.docs"                 "Google Drive / Docs"
+    uninstall_pkg "com.google.android.apps.photos"               "Google Photos"
+    uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
+    uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
+
+    disable_pkg "com.android.stk"                                "SIM Toolkit"
+    disable_pkg "com.android.nfc"                                "NFC Service"
+
+    success "Google bloatware debloated."
+}
+
+# ── 7. Full debloat (all categories) ─────────────────────────────────────────
+debloat_all() {
+    section "Full Debloat — All Categories"
+    echo -e "  ${RED}${BOLD}This will run every debloat category sequentially.${NC}"
+    echo -e "  ${YELLOW}  Recommended for a fresh setup. Confirm each category individually.${NC}"
+    debloat_analytics
+    debloat_coloros
+    debloat_gaming
+    debloat_payments
+    debloat_social
+    debloat_google
+}
+
+# ── List installed packages ───────────────────────────────────────────────────
+list_packages() {
+    section "Installed Packages"
+    echo -ne "  Filter by keyword (leave blank to list all): "
+    read -r filter
+    echo
+    if [[ -n "$filter" ]]; then
+        adb shell pm list packages 2>/dev/null | grep "$filter" | sed 's/^package://' | sort
+    else
+        adb shell pm list packages 2>/dev/null | sed 's/^package://' | sort
+    fi
+    echo
+}
+
+# ── Reinstall a previously removed package ────────────────────────────────────
+reinstall_pkg() {
+    section "Reinstall Package"
+    echo -ne "  Enter package name to reinstall: "
+    read -r pkg
+    [[ -z "$pkg" ]] && { warn "No package name entered."; return; }
+    info "Attempting reinstall of ${BOLD}${pkg}${NC}…"
+    local out
+    out=$(adb shell cmd package install-existing "$pkg" 2>&1)
+    if echo "$out" | grep -q "installed\|Success"; then
+        success "${pkg} reinstalled successfully."
+    else
+        error "Failed to reinstall ${pkg}. It may not exist in the device OTA image."
+        echo -e "  ${DIM}${out}${NC}"
+    fi
+}
+
+# ── Custom single-package removal ────────────────────────────────────────────
+custom_uninstall() {
+    section "Custom Package Removal"
+    echo -ne "  Enter package name to uninstall: "
+    read -r pkg
+    [[ -z "$pkg" ]] && { warn "No package name entered."; return; }
+    confirm "Uninstall ${BOLD}${pkg}${NC}?" || { info "Cancelled."; return; }
+    uninstall_pkg "$pkg" "$pkg"
+}
+
+# ── Toggle dry-run mode ───────────────────────────────────────────────────────
+toggle_dry_run() {
+    if $DRY_RUN; then
+        DRY_RUN=false
+        success "Dry-run DISABLED. Changes will now be applied to the device."
+    else
+        DRY_RUN=true
+        warn "Dry-run ENABLED. No changes will be made to the device."
+    fi
+}
+
+# ── Toggle logging ────────────────────────────────────────────────────────────
+toggle_logging() {
+    if $LOG_ENABLED; then
+        LOG_ENABLED=false
+        info "Logging disabled."
+    else
+        LOG_ENABLED=true
+        success "Logging enabled → ${BOLD}${LOG_FILE}${NC}"
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Session started" >> "$LOG_FILE"
+    fi
+}
+
+# ── Session summary ───────────────────────────────────────────────────────────
+print_summary() {
+    section "Session Summary"
+    echo -e "  ${BOLD}Packages removed this session:${NC} ${#REMOVED_PKGS[@]}"
+    local p
+    for p in "${REMOVED_PKGS[@]}"; do
+        echo -e "    ${DIM}• ${p}${NC}"
+    done
+    if $LOG_ENABLED; then
+        echo -e "\n  ${DIM}Log saved to: ${LOG_FILE}${NC}"
+    fi
+    echo -e "\n  ${GREEN}${BOLD}To restore any removed package:${NC}"
+    echo -e "  ${DIM}adb shell cmd package install-existing <package.name>${NC}"
+    echo
+}
+
+# ── Main menu ─────────────────────────────────────────────────────────────────
+main_menu() {
+    while true; do
+        local dr_status log_status
+        $DRY_RUN    && dr_status="${YELLOW}ON${NC} " || dr_status="${GREEN}OFF${NC}"
+        $LOG_ENABLED && log_status="${GREEN}ON${NC} " || log_status="${DIM}OFF${NC}"
+
+        echo -e "${BOLD}${BLUE}"
+        echo "  ┌─────────────────────────────────────────────────────┐"
+        echo "  │                     MAIN MENU                       │"
+        echo "  ├─────────────────────────────────────────────────────┤"
+        printf "  │  %-5s %-47s│\n" "[1]" "List installed packages"
+        printf "  │  %-5s %-47s│\n" "[2]" "Debloat: Analytics & Telemetry"
+        printf "  │  %-5s %-47s│\n" "[3]" "Debloat: ColorOS / OPPO bloatware"
+        printf "  │  %-5s %-47s│\n" "[4]" "Debloat: Game Space & Gaming services"
+        printf "  │  %-5s %-47s│\n" "[5]" "Debloat: Payment & Financial apps"
+        printf "  │  %-5s %-47s│\n" "[6]" "Debloat: Facebook & Social preloads"
+        printf "  │  %-5s %-47s│\n" "[7]" "Debloat: Google bloatware"
+        printf "  │  %-5s %-47s│\n" "[8]" "Debloat: ALL categories (full clean)"
+        printf "  │  %-5s %-47s│\n" "[9]" "Custom uninstall"
+        printf "  │  %-5s %-47s│\n" "[r]" "Reinstall / restore a package"
+        echo "  │                                                     │"
+        echo -ne "  │  [d]  Dry-run mode  : "; echo -e "${dr_status}${BOLD}${BLUE}                              │"
+        echo -ne "  │  [l]  Logging       : "; echo -e "${log_status}${BOLD}${BLUE}                              │"
+        echo "  │                                                     │"
+        printf "  │  %-5s %-47s│\n" "[s]" "Show session summary"
+        printf "  │  %-5s %-47s│\n" "[0]" "Exit"
+        echo "  └─────────────────────────────────────────────────────┘"
+        echo -e "${NC}"
+
+        echo -ne "  Enter option: "
+        read -r option
+
+        case "$option" in
+            1) list_packages ;;
+            2) debloat_analytics ;;
+            3) debloat_coloros ;;
+            4) debloat_gaming ;;
+            5) debloat_payments ;;
+            6) debloat_social ;;
+            7) debloat_google ;;
+            8) debloat_all ;;
+            9) custom_uninstall ;;
+            r|R) reinstall_pkg ;;
+            d|D) toggle_dry_run ;;
+            l|L) toggle_logging ;;
+            s|S) print_summary ;;
+            0|q|Q)
+                echo
+                print_summary
+                info "Exiting. Enjoy your optimised device!"
+                exit 0
+                ;;
+            *) warn "Invalid option '${option}'. Please try again." ;;
         esac
     done
 }
 
-# Check if device is connected and start the main menu
-check_device_connected
-main_menu
+# ── Entry point ───────────────────────────────────────────────────────────────
+main() {
+    clear
+    print_banner
+    check_adb
+    check_device
+    print_device_info
+    main_menu
+}
+
+main

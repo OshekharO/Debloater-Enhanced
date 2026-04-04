@@ -1,75 +1,96 @@
-# Debloat Enhanced
+# Debloater Enhanced — ColorOS 13.1 Edition
 
-:sparkles: Script to debloat apps ***No ROOT or Unlocked Bootloader Required!*** :sparkles:
+:sparkles: ADB-based debloater for **OPPO / Realme** devices running **ColorOS 13.1 (Android 13)** — ***No ROOT or Unlocked Bootloader Required!*** :sparkles:
 
 ## Overview
 
-Debloat Enhanced is a powerful script designed to remove unwanted apps from your Android device without requiring root access or an unlocked bootloader. It helps improve device performance and battery life by removing unnecessary system apps.
+Debloater Enhanced v2.0 is a fully rewritten shell/batch script targeting the specific bloatware found on ColorOS 13.1 devices. It removes or disables unwanted pre-installed apps via ADB without requiring root access, improving performance, privacy, and battery life.
+
+Packages are organised into focused categories so you can remove only what you do not need. A **dry-run mode** lets you preview every action before any change is made.
+
+## Supported Devices
+
+| Brand   | OS           | Tested |
+|---------|--------------|--------|
+| OPPO    | ColorOS 13.1 | ✅     |
+| Realme  | realmeUI 4.0 | ✅     |
+| OnePlus | OxygenOS 13  | ⚠️ partial |
+
+> Scripts will warn you if the detected device brand is not OPPO/Realme/OnePlus.
 
 ## Prerequisites
 
-Before using Debloat Enhanced, ensure you have the following:
-
-* Download the latest source code.
-* Enable USB debugging on your device.
-* Customize the .bat or .sh file according to your preferences.
+* Android Platform Tools (ADB) installed and in your system PATH
+  * [Download Platform Tools](https://developer.android.com/studio/releases/platform-tools)
+* USB Debugging enabled on your device
+  * Settings → About Phone → tap **Build Number** seven times → Developer Options → enable **USB Debugging**
+* A USB cable that supports data transfer
 
 ## Features
 
-* **Support for Rooted and Non-Rooted Devices**: Debloat Enhanced works seamlessly on both rooted and non-rooted Android devices, providing flexibility for all users.
-  
-* **Customizable Debloating**: Tailor the debloating process to your preferences by customizing the list of apps and services you want to remove. This allows you to optimize your device according to your specific needs.
+| Feature | Description |
+|---------|-------------|
+| **6 Debloat Categories** | Analytics/Telemetry, ColorOS bloat, Gaming, Payments, Social, Google |
+| **Dry-Run Mode** | Preview all actions without making any changes |
+| **Per-Package Detection** | Skips packages not present on the device — no false failures |
+| **Disable vs. Remove** | System-critical apps are disabled instead of uninstalled |
+| **Reinstall / Restore** | Restore any removed package with a single menu option |
+| **Session Logging** | Optionally write every action to a timestamped log file |
+| **Session Summary** | See exactly how many packages were removed at the end |
+| **Custom Uninstall** | Remove any package by entering its name manually |
+| **ANSI Colour Output** | Color-coded status (REMOVED / DISABLED / SKIP / FAILED / DRY-RUN) |
 
-* **Improved Privacy**: Remove pre-installed bloatware and unnecessary system apps to enhance your privacy and minimize data collection by third-party applications.
+## Debloat Categories
 
-* **Enhanced Security**: Reduce the attack surface of your device by eliminating unnecessary system services and potential security vulnerabilities.
-
-* **Extended Battery Life**: Disable battery-draining apps and services to prolong battery life and improve overall device efficiency.
+| # | Category | What is removed |
+|---|----------|-----------------|
+| 2 | Analytics & Telemetry | HeyTap analytics, OPlus statistical/feedback services, Tencent Soter, ROM statistics |
+| 3 | ColorOS / OPPO Bloatware | Browser, music player, cloud, community, share, compass, OCR scanner, lockscreen magazine, OPOS, Glance |
+| 4 | Game Space & Gaming | Game Space UI/service, HeyFun, OPlus Games, NearMe game platform |
+| 5 | Payment & Financial | OPlus Pay, ColorOS Secure Pay, Realme PaySa |
+| 6 | Facebook & Social | Facebook Services, App Manager, System, Katana (app) |
+| 7 | Google Bloatware | Meet, GPay, Google One, TalkBack, YouTube, Assistant, Photos, Drive, AR Core, Android Auto, and more |
 
 ## How to Use
 
-1. **Download the Latest Version**: Get the latest version of Debloat Enhanced from the repository.
+1. **Download** the latest source code from this repository.
 
-2. **Enable USB Debugging**: Enable USB debugging on your Android device by going to Settings > Developer options. If Developer options are not visible, go to Settings > About phone and tap on "Build number" seven times to enable Developer options.
+2. **Enable USB Debugging** on your device (see Prerequisites above).
 
-3. **Connect Your Device**: Connect your Android device to your computer using a USB cable.
+3. **Connect** your device via USB. Tap **Allow** on the authorisation dialog on your phone.
 
-4. **Run the Script**: Open the debloat.bat or debloat.sh file and follow the on-screen instructions to begin the debloating process. For non-rooted devices, ADB permissions may need to be granted during the process.
+4. **Run the script**:
+   * **Windows**: double-click `debloat.bat` or run it in a Command Prompt.
+   * **Linux / macOS**: `chmod +x debloat.sh && ./debloat.sh`
 
-5. **Review Changes**: Before proceeding, review the list of apps and services that will be removed. Make any necessary adjustments to ensure you do not accidentally remove essential system components.
+5. **Enable dry-run mode first** (option `[d]`) to see what will be removed without making any changes.
 
-6. **Enjoy Your Optimized Device**: Once the debloating process is complete, enjoy the improved performance, privacy, security, and battery life of your Android device.
+6. **Select a category** and type `yes` to confirm. The script shows `REMOVED`, `DISABLED`, `SKIP`, or `FAILED` for each package in real time.
 
-## Important Notes
+7. **Restore** any accidentally removed package with option `[r]`.
 
-* **Battery Drainers**: Apps like Chrome and Quick Device Cnnect are known to drain battery quickly.
+## Important Warnings
 
-* **Ram Killers**: Avoid removing essential system services like Athena, as they may cause issues such as the disappearance of the Clear All button.
+* **Do NOT remove** `com.coloros.athena` (Clear All button), weather service, or startup wizard — these affect OS stability.
+* **Payment apps**: Only remove if you are not using those specific payment services.
+* **Game Space**: Removing it disables in-game FPS counter, network optimisation, and performance mode features.
+* **Backup your data** before debloating as a precaution.
+* If anything goes wrong, **factory reset** restores all system apps.
 
-* **OS Brickers**: Be cautious when removing apps related to weather services, one-handed mode, or startup wizard, as they may affect the stability of your operating system.
+## Reinstalling Removed Packages
 
-* **Backup Your Data**: Before debloating your device, it's recommended to backup your important data to avoid any potential data loss.
+```sh
+# Reinstall a single package
+adb shell cmd package install-existing <package.name>
 
-* **Proceed with Caution**: While Debloat Enhanced provides a powerful optimization tool, it's important to proceed with caution and only remove apps and services that you are certain are safe to disable. Removing critical system components may lead to device instability or functionality issues.
-
-* **Restore Factory Settings**: If you encounter any issues or wish to revert the changes made by Debloat Enhanced, you can restore your device to factory settings to reset it to its original state.
+# Example
+adb shell cmd package install-existing com.heytap.music
+```
 
 ## Useful Links
 
-* [Google USB Driver](https://developer.android.com/studio/run/win-usb)
-  * [Official OEM Drivers](https://developer.android.com/studio/run/oem-usb#Drivers)
-* [Download ADB](https://developer.android.com/studio/releases/platform-tools)
-* [Package Manager](https://play.google.com/store/apps/details?id=com.csdroid.pkg)
-* [LABD Android](https://userupload.net/wutry343x43x)
+* [Download ADB / Platform Tools](https://developer.android.com/studio/releases/platform-tools)
+* [Google USB Driver (Windows)](https://developer.android.com/studio/run/win-usb)
+* [Official OEM USB Drivers](https://developer.android.com/studio/run/oem-usb#Drivers)
+* [Package Manager app (Android)](https://play.google.com/store/apps/details?id=com.csdroid.pkg)
 
-## Reinstalling Applications
-
-If you need to reinstall any removed apps, use the following commands:
-
-```cmd
-adb shell pm install-existing <package name>
-
-OR
-
-adb shell cmd package install-existing <package name>
-```
