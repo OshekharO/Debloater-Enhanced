@@ -86,7 +86,6 @@ print_device_info() {
     coloros=$(adb shell getprop ro.build.version.oplusrom.display 2>/dev/null | tr -d '\r')
     [[ -z "$coloros" ]] && coloros=$(adb shell getprop ro.coloros.version.display 2>/dev/null | tr -d '\r')
     miui=$(adb shell getprop ro.miui.ui.version.name 2>/dev/null | tr -d '\r')
-    [[ -z "$miui" ]] && miui=$(adb shell getprop ro.build.version.incremental 2>/dev/null | tr -d '\r')
     [[ -z "$coloros" ]] && coloros="N/A"
     [[ -z "$miui" ]] && miui="N/A"
 
