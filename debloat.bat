@@ -27,9 +27,12 @@ set "NC=%ESC%[0m"
 set DRY_RUN=0
 set LOG_ENABLED=0
 set REMOVED_COUNT=0
-for /f "tokens=1-4 delims=/ " %%a in ("%DATE%") do set "DATESTAMP=%%d%%b%%c"
-for /f "tokens=1-3 delims=:." %%a in ("%TIME: =0%") do set "TIMESTAMP=%%a%%b%%c"
-set "LOG_FILE=debloater_%DATESTAMP%_%TIMESTAMP%.log"
+for /f "tokens=2 delims==" %%a in ('wmic os get localdatetime /value 2^>nul') do set "WMIC_DT=%%a"
+if defined WMIC_DT (
+    set "LOG_FILE=debloater_!WMIC_DT:~0,8!_!WMIC_DT:~8,6!.log"
+) else (
+    set "LOG_FILE=debloater_session.log"
+)
 
 cls
 call :print_banner
