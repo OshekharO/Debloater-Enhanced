@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 :: =============================================================================
 :: Debloater Enhanced - Multi-Brand Edition
-:: Version 4.0  |  Author: Saksham Shekher
+:: Version 2.0  |  Author: Saksham Shekher
 :: Targets: OPPO / Realme (ColorOS 13+) | Xiaomi / Redmi (MIUI 14 / HyperOS)
 ::          OnePlus (OxygenOS 13/14)
 :: =============================================================================
@@ -52,7 +52,7 @@ goto :eof
 echo.
 echo %MAGENTA%%BOLD%  +========================================================+
 echo   ^|    Debloater Enhanced - Multi-Brand Edition           ^|
-echo   ^|                    Version 4.0                        ^|
+echo   ^|                    Version 2.0                        ^|
 echo   +========================================================+%NC%
 echo.
 echo   %DIM%Author  : Saksham Shekher%NC%
@@ -307,9 +307,7 @@ call :uninstall_pkg "com.heytap.speechassist"        "HeyTap Speech Assistant"
 call :uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
 call :uninstall_pkg "com.coloros.tips"               "ColorOS Tips ^& What's New"
 call :uninstall_pkg "com.heytap.easyswitch"          "HeyTap Easy Switch (Cross-Device)"
-call :uninstall_pkg "com.coloros.documentmanager"    "ColorOS Document Manager"
 call :uninstall_pkg "com.oppo.assistivetouch"        "OPPO Assistive Touch / Navigator Ball"
-call :uninstall_pkg "com.coloros.appmanager"         "ColorOS App Manager"
 call :uninstall_pkg "com.coloros.assistantscreen"    "ColorOS Assistant Screen"
 call :uninstall_pkg "com.coloros.childrenspace"      "ColorOS Children's Space"
 call :uninstall_pkg "com.coloros.floatassistant"     "ColorOS Float Assistant"
@@ -325,6 +323,7 @@ call :uninstall_pkg "com.coloros.encryption"         "ColorOS Private Safe (Secu
 call :uninstall_pkg "com.oppo.mimosiso"              "OPPO Mimosiso"
 call :uninstall_pkg "com.oppo.ovoicemanager"         "OPPO Voice Manager"
 call :uninstall_pkg "com.oppo.partnerbrowsercustomizations" "OPPO Partner Browser Customizations"
+call :disable_pkg   "com.coloros.appmanager"         "ColorOS App Manager"
 call :disable_pkg   "com.heytap.themestore"          "HeyTap Theme Store"
 call :disable_pkg   "com.coloros.phonemanager"       "ColorOS Phone Manager"
 call :disable_pkg   "com.caf.fmradio"                "Qualcomm CAF FM Radio"
@@ -416,7 +415,6 @@ call :uninstall_pkg "com.google.ar.lens"                           "Google Lens 
 call :uninstall_pkg "com.google.android.apps.docs"                 "Google Drive / Docs"
 call :uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
 call :uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
-call :uninstall_pkg "com.google.android.gm"                        "Gmail"
 call :uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
 call :uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
 call :uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
@@ -437,8 +435,6 @@ call :disable_pkg   "com.google.android.ondevicepersonalization.services" "Googl
 call :disable_pkg   "com.google.ambient.streaming"                 "Google Ambient Streaming (Cast)"
 call :disable_pkg   "com.google.android.accessibility.switchaccess" "Google Switch Access (Accessibility)"
 call :disable_pkg   "com.google.android.overlay.modules.healthfitness.forframework" "Google Health Fitness Overlay"
-call :disable_pkg   "com.google.android.cellbroadcastreceiver.overlay.miui"  "Cell Broadcast Receiver MIUI Overlay"
-call :disable_pkg   "com.google.android.cellbroadcastservice.overlay.miui"   "Cell Broadcast Service MIUI Overlay"
 
 echo   %GREEN%[OK]%NC%    Google bloatware debloated.
 goto :eof
@@ -532,12 +528,8 @@ call :uninstall_pkg "com.xiaomi.glgm"                   "Xiaomi GLGM (Analytics)
 call :uninstall_pkg "com.mi.globalbrowser"              "Mi Browser (Global)"
 call :uninstall_pkg "com.xiaomi.mi_connect_service"     "Mi Connect Service"
 call :uninstall_pkg "com.xiaomi.discover"               "Xiaomi Discover"
-call :uninstall_pkg "com.miuix.editor"                  "MIUI Photo/Video Editor"
 call :uninstall_pkg "com.xiaomi.mtb"                    "Xiaomi MTB (Message Top Boards)"
 call :uninstall_pkg "com.xiaomi.mirror"                 "Mi Mirror (Screen Cast)"
-call :uninstall_pkg "com.xiaomi.cameramind"             "Xiaomi CameraMind (AI Camera)"
-call :uninstall_pkg "com.xiaomi.cameratools"            "Xiaomi Camera Tools"
-call :disable_pkg   "com.miui.powerkeeper"             "MIUI Power Keeper (Battery Mgmt)"
 call :disable_pkg   "com.miui.miservice"               "MIUI Mi Service"
 call :disable_pkg   "com.miui.micloudsync"             "MIUI Mi Cloud Sync"
 
@@ -605,14 +597,11 @@ if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Skipped. & goto :eof)
 
 call :disable_pkg   "android.qvaoverlay.common"                      "QVA Common Overlay"
 call :disable_pkg   "android.autoinstalls.config.Xiaomi.model"       "Xiaomi Auto-Install Config Overlay"
-call :disable_pkg   "com.android.cellbroadcastreceiver.overlay.common" "Cell Broadcast Receiver Common Overlay"
 call :disable_pkg   "com.android.inputsettings.overlay.miui"         "Input Settings MIUI Overlay"
 call :disable_pkg   "com.android.managedprovisioning.overlay"        "Managed Provisioning Overlay"
 call :disable_pkg   "com.android.phone.auto_generated_characteristics_rro" "Phone Characteristics RRO"
 call :disable_pkg   "com.android.role.notes.enabled"                 "Notes Role Overlay"
-call :disable_pkg   "com.android.settings.overlay.miui"              "Settings MIUI Overlay"
 call :disable_pkg   "com.android.stk.overlay.miui"                   "STK MIUI Overlay"
-call :disable_pkg   "com.android.systemui.overlay.miui"              "SystemUI MIUI Overlay"
 call :disable_pkg   "com.miui.miwallpaper.overlay"                   "MIUI Wallpaper Overlay"
 call :disable_pkg   "com.miui.miwallpaper.overlay.customize"         "MIUI Wallpaper Customize Overlay"
 call :disable_pkg   "com.miui.phone.carriers.overlay.h3g"            "MIUI H3G Carrier Overlay"
@@ -622,7 +611,6 @@ call :disable_pkg   "com.miui.wallpaper.overlay"                     "MIUI Wallp
 call :disable_pkg   "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customize Overlay (Alt)"
 call :disable_pkg   "com.mi.globallayout"                            "Mi Global Layout Overlay"
 call :disable_pkg   "com.xiaomi.micloud.sdk"                         "Xiaomi Mi Cloud SDK"
-call :disable_pkg   "com.oppo.gmail.overlay"                         "OPPO Gmail Overlay"
 call :disable_pkg   "com.coloros.activation.overlay.common"          "ColorOS Activation Common Overlay"
 
 echo   %GREEN%[OK]%NC%    Vendor overlays disabled.
