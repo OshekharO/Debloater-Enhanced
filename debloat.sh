@@ -232,6 +232,29 @@ debloat_analytics() {
     uninstall_pkg "com.oplus.aiunit"               "OPlus AI Unit (Behavioural Analytics)"
     uninstall_pkg "com.oplus.omcservice"           "OPlus Operator Management Content (Promos)"
 
+    # OPPO/ColorOS analytics, diagnostics & telemetry
+    uninstall_pkg "com.coloros.athena"             "ColorOS Athena (AI Telemetry Service)"
+    uninstall_pkg "com.coloros.avastofferwall"     "Avast Offer Wall (Ad/Tracking Preload)"
+    uninstall_pkg "com.coloros.bootreg"            "ColorOS Boot Registry (System Stats)"
+    uninstall_pkg "com.coloros.healthcheck"        "ColorOS Health Check Service"
+    uninstall_pkg "com.coloros.resmonitor"         "ColorOS Resource Monitor"
+    uninstall_pkg "com.coloros.sauhelper"          "ColorOS SAU Helper (Usage Analytics)"
+    uninstall_pkg "com.coloros.sceneservice"       "ColorOS Scene Service (Usage Tracking)"
+    uninstall_pkg "com.oppo.ScoreAppMonitor"       "OPPO Score App Monitor"
+    uninstall_pkg "com.oppo.criticallog"           "OPPO Critical Log Service"
+    uninstall_pkg "com.oppo.logkit"                "OPPO Log Kit"
+    uninstall_pkg "com.oppo.qualityprotect"        "OPPO Quality Protect"
+    uninstall_pkg "com.oppo.startlogkit"           "OPPO Startup Log Kit"
+    uninstall_pkg "com.oppo.usageDump"             "OPPO Usage Dump"
+    uninstall_pkg "com.oppo.lfeh"                  "OPPO LFEH Behaviour Tracking"
+
+    disable_pkg "com.coloros.safesdkproxy"         "ColorOS Safe SDK Proxy"
+    disable_pkg "com.oppo.nw"                      "OPPO Network Service Monitor"
+    disable_pkg "com.oppo.rftoolkit"               "OPPO RF Toolkit (Factory Diagnostics)"
+    disable_pkg "com.oppo.wifirf"                  "OPPO WiFi RF Test Tool"
+    disable_pkg "com.oppo.bttestmode"              "OPPO Bluetooth Test Mode"
+    disable_pkg "com.dsi.ant.server"               "DSI ANT+ Server"
+
     success "Analytics & telemetry debloated."
 }
 
@@ -244,19 +267,29 @@ debloat_coloros() {
     # Browsing & search
     uninstall_pkg "com.heytap.browser"             "HeyTap Browser"
     uninstall_pkg "com.oppo.quicksearchbox"        "OPPO Home Screen Search"
+    uninstall_pkg "com.nearme.browser"             "NearMe Browser"
 
     # Multimedia
     uninstall_pkg "com.heytap.music"               "HeyTap Music"
     uninstall_pkg "com.coloros.video"              "ColorOS Video Player"
     uninstall_pkg "com.realme.movieshot"           "Realme MovieShot / Combine Captions"
+    uninstall_pkg "com.oppo.music"                 "OPPO Music Player"
 
     # Cloud & backup
     uninstall_pkg "com.heytap.cloud"               "HeyTap Cloud"
     uninstall_pkg "com.coloros.backuprestore"      "ColorOS Backup & Restore"
+    uninstall_pkg "com.coloros.backuprestore.remoteservice" "ColorOS Backup Remote Service"
+    uninstall_pkg "com.coloros.wifibackuprestore"  "ColorOS WiFi Backup & Restore"
 
     # Social & account services
     uninstall_pkg "com.realmecomm.app"             "Realme Community"
     uninstall_pkg "com.heytap.usercenter"          "My OPPO / HeyTap User Centre"
+    uninstall_pkg "com.oppo.usercenter"            "OPPO User Center"
+
+    # App store & market
+    uninstall_pkg "com.heytap.market"              "HeyTap GetApps Market"
+    uninstall_pkg "com.oppo.market"                "OPPO App Market"
+    uninstall_pkg "com.nearme.themestore"          "NearMe Theme Store"
 
     # Non-essential utilities
     uninstall_pkg "com.coloros.compass2"           "ColorOS Compass"
@@ -265,10 +298,13 @@ debloat_coloros() {
     uninstall_pkg "com.coloros.smartdrive"         "ColorOS Smart Driving"
     uninstall_pkg "com.coloros.oppomultiapp"       "OPPO Clone Phone"
     uninstall_pkg "com.oplus.multiapp"             "OPlus App Cloner"
-    uninstall_pkg "com.oppo.opperationManual"      "OPPO User Guide / Manual"
+    uninstall_pkg "com.oppo.opperationManual"      "OPPO User Guide / Manual (legacy)"
+    uninstall_pkg "com.oppo.operationManual"       "OPPO Operation Manual"
     uninstall_pkg "com.os.docvault"                "Doc Vault"
     uninstall_pkg "com.redteamobile.roaming"       "O-Roaming (eSIM Roaming)"
+    uninstall_pkg "com.redteamobile.roaming.deamon" "Red Mobile Roaming Daemon"
     uninstall_pkg "com.nearme.atlas"               "OPPO Atlas"
+    uninstall_pkg "com.oppo.atlas"                 "OPPO Atlas Service"
     uninstall_pkg "com.heytap.accessory"           "Quick Device Connect"
     uninstall_pkg "com.realme.wellbeing"           "Realme Wellbeing / Sleep Capsule"
     uninstall_pkg "com.oplus.linker"               "OPlus PC Connect"
@@ -280,21 +316,34 @@ debloat_coloros() {
     uninstall_pkg "com.oplus.encryption"           "Private Safe"
     uninstall_pkg "com.coloros.note"               "ColorOS Notes"
     uninstall_pkg "com.coloros.healthkit"          "ColorOS Health"
-    uninstall_pkg "com.heytap.market"              "HeyTap GetApps Market"
     uninstall_pkg "com.oplus.voiceassistant"       "OPlus Voice Assistant"
     uninstall_pkg "com.oplus.omoji"                "OPlus Omoji (AR Emoji)"
     uninstall_pkg "com.oplus.babelfish"            "OPlus Babelfish Translation"
     uninstall_pkg "com.heytap.speechassist"        "HeyTap Speech Assistant"
     uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
-    uninstall_pkg "com.coloros.weather"            "ColorOS Weather"
     uninstall_pkg "com.coloros.tips"               "ColorOS Tips & What's New"
     uninstall_pkg "com.heytap.easyswitch"          "HeyTap Easy Switch (Cross-Device)"
     uninstall_pkg "com.coloros.documentmanager"    "ColorOS Document Manager"
     uninstall_pkg "com.oppo.assistivetouch"        "OPPO Assistive Touch / Navigator Ball"
+    uninstall_pkg "com.coloros.appmanager"         "ColorOS App Manager"
+    uninstall_pkg "com.coloros.assistantscreen"    "ColorOS Assistant Screen"
+    uninstall_pkg "com.coloros.childrenspace"      "ColorOS Children's Space"
+    uninstall_pkg "com.coloros.floatassistant"     "ColorOS Float Assistant"
+    uninstall_pkg "com.coloros.focusmode"          "ColorOS Focus Mode"
+    uninstall_pkg "com.coloros.phonenoareainquire" "ColorOS Phone Number Area Inquiry"
+    uninstall_pkg "com.coloros.pictorial"          "ColorOS Pictorial / Magazine"
+    uninstall_pkg "com.coloros.screenrecorder"     "ColorOS Screen Recorder"
+    uninstall_pkg "com.coloros.soundrecorder"      "ColorOS Sound Recorder"
+    uninstall_pkg "com.coloros.speechassist"       "ColorOS Speech Assist"
+    uninstall_pkg "com.coloros.translate.engine"   "ColorOS Translate Engine"
+    uninstall_pkg "com.oppo.mimosiso"              "OPPO Mimosiso"
+    uninstall_pkg "com.oppo.ovoicemanager"         "OPPO Voice Manager"
+    uninstall_pkg "com.oppo.partnerbrowsercustomizations" "OPPO Partner Browser Customizations"
 
     # Disable rather than remove (affects OTA / restore flow)
     disable_pkg "com.heytap.themestore"            "HeyTap Theme Store"
     disable_pkg "com.coloros.phonemanager"         "ColorOS Phone Manager"
+    disable_pkg "com.caf.fmradio"                  "Qualcomm CAF FM Radio"
     disable_pkg "com.android.fmradio"              "FM Radio"
     disable_pkg "com.glance.internet"              "Glance (Lock Screen Ads)"
 
@@ -327,6 +376,7 @@ debloat_payments() {
     uninstall_pkg "com.oplus.pay"                  "OPlus Pay / Secure Payment"
     uninstall_pkg "com.coloros.securepay"          "ColorOS Secure Pay"
     uninstall_pkg "com.realmepay.payments"         "Realme PaySa"
+    uninstall_pkg "com.coloros.wallet"             "ColorOS Wallet"
 
     success "Payment apps removed."
 }
@@ -373,26 +423,19 @@ debloat_google() {
     uninstall_pkg "com.google.android.printservice.recommendation" "Print Service Recommender"
     uninstall_pkg "com.google.ar.lens"                           "Google Lens (AR)"
     uninstall_pkg "com.google.android.apps.docs"                 "Google Drive / Docs"
-    uninstall_pkg "com.google.android.apps.photos"               "Google Photos"
     uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
     uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
     uninstall_pkg "com.google.android.gm"                        "Gmail"
-    uninstall_pkg "com.google.android.apps.maps"                 "Google Maps"
-    uninstall_pkg "com.google.android.apps.messaging"            "Google Messages"
     uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
-    uninstall_pkg "com.google.android.dialer"                    "Google Phone / Dialer"
-    uninstall_pkg "com.google.android.contacts"                  "Google Contacts"
     uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
     uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
     uninstall_pkg "com.google.android.onetimeinitializer"        "Google One-Time Initializer"
     uninstall_pkg "com.google.android.apps.healthdata"           "Google Health Data"
     uninstall_pkg "com.google.android.adservices.api"            "Google Ad Services API"
 
-    # Disable rather than fully remove (system file-picker, IME fallback, setup, telemetry)
+    # Disable rather than fully remove (setup, telemetry, overlays)
     disable_pkg "com.android.stk"                                "SIM Toolkit"
     disable_pkg "com.android.nfc"                                "NFC Service"
-    disable_pkg "com.google.android.documentsui"                 "Google Documents UI / System Files"
-    disable_pkg "com.google.android.inputmethod.latin"           "Gboard (AOSP Latin IME)"
     disable_pkg "com.google.android.setupwizard"                 "Google Setup Wizard"
     disable_pkg "com.google.android.federatedcompute"            "Google Federated Compute (ML)"
     disable_pkg "com.google.android.healthconnect.controller"    "Health Connect"
@@ -464,7 +507,6 @@ debloat_miui_apps() {
     uninstall_pkg "com.miui.player"                  "Mi Music Player"
     uninstall_pkg "com.miui.videoplayer"             "Mi Video Player"
     uninstall_pkg "com.miui.notes"                   "Mi Notes"
-    uninstall_pkg "com.miui.weather"                 "Mi Weather"
     uninstall_pkg "com.miui.compass"                 "Mi Compass"
     uninstall_pkg "com.miui.fm"                      "Mi FM Radio"
     uninstall_pkg "com.miui.qr"                      "MIUI QR Scanner"
@@ -514,15 +556,11 @@ debloat_miui_apps() {
     uninstall_pkg "com.xiaomi.channel"                 "Xiaomi Channel (Promotions)"
 
     # AOD, utilities & media tools
-    uninstall_pkg "com.miui.aod"                          "MIUI Always-On Display"
     uninstall_pkg "com.mi.globalminusscreen"              "Mi Global Minus Screen"
     uninstall_pkg "com.mi.appfinder"                      "Mi App Finder"
     uninstall_pkg "com.miui.backup"                       "MIUI Backup"
-    uninstall_pkg "com.miui.extraphoto"                   "MIUI Extra Photo Formats"
-    uninstall_pkg "com.xiaomi.calendar"                   "Mi Calendar"
     uninstall_pkg "com.miui.cleaner"                      "MIUI Phone Cleaner"
     uninstall_pkg "com.miui.phrase"                       "MIUI Auto Phrase / Quick Phrases"
-    uninstall_pkg "com.mi.android.globalFileexplorer"     "Mi File Explorer (Global)"
     uninstall_pkg "com.xiaomi.glgm"                       "Xiaomi GLGM (Analytics)"
     uninstall_pkg "com.mi.globalbrowser"                  "Mi Browser (Global)"
     uninstall_pkg "com.xiaomi.mi_connect_service"         "Mi Connect Service"
@@ -533,12 +571,10 @@ debloat_miui_apps() {
     uninstall_pkg "com.xiaomi.cameramind"                 "Xiaomi CameraMind (AI Camera)"
     uninstall_pkg "com.xiaomi.cameratools"                "Xiaomi Camera Tools"
 
-    # Disable rather than remove (battery / security dependency)
+    # Disable rather than remove (battery dependency)
     disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
     disable_pkg "com.miui.miservice"                 "MIUI Mi Service"
     disable_pkg "com.miui.micloudsync"               "MIUI Mi Cloud Sync"
-    disable_pkg "com.miui.global.packageinstaller"   "MIUI Global Package Installer"
-    disable_pkg "com.miui.accessibility"             "MIUI Accessibility Service"
 
     success "Xiaomi/Redmi system bloat removed."
 }
@@ -563,10 +599,7 @@ debloat_oneplus() {
     uninstall_pkg "com.oneplus.region"               "OnePlus Region Service"
 
     # Pre-installed apps (replaceable)
-    uninstall_pkg "com.oneplus.gallery"              "OnePlus Gallery"
-    uninstall_pkg "com.oneplus.filemanager"          "OnePlus File Manager"
     uninstall_pkg "com.oneplus.tips"                 "OnePlus Tips"
-    uninstall_pkg "com.oneplus.weatherExt"           "OnePlus Weather Extension"
     uninstall_pkg "com.oneplus.clipboard"            "OnePlus Clipboard"
 
     # Wallet & health (skip if using)
@@ -597,20 +630,14 @@ debloat_android_extras() {
     confirm "Remove/disable AOSP system extras?" || { info "Skipped."; return; }
 
     # Safe to uninstall (no device-critical dependency)
-    uninstall_pkg "com.android.egg"                      "Android Easter Egg"
-    uninstall_pkg "com.android.avatarpicker"             "Android Avatar Picker"
     uninstall_pkg "com.android.devicediagnostics"        "Android Device Diagnostics"
     uninstall_pkg "com.android.traceur"                  "Android System Tracer (Developer)"
     uninstall_pkg "com.android.DeviceAsWebcam"           "Device as Webcam"
     uninstall_pkg "com.android.providers.partnerbookmarks" "Partner Bookmarks Provider"
 
-    # Disable only (may be invoked by enterprise MDM or carrier flows)
-    disable_pkg "com.android.deskclock"                  "AOSP Desk Clock"
-    disable_pkg "com.android.managedprovisioning"        "Android Managed Provisioning (Enterprise)"
+    # Disable only (may be invoked by carrier flows)
     disable_pkg "com.android.calllogbackup"              "Call Log Backup Service"
-    disable_pkg "com.android.cameraextensions"           "Camera Extensions"
     disable_pkg "com.android.carrierdefaultapp"          "Carrier Default App"
-    disable_pkg "com.android.wallpaperbackup"            "Wallpaper Backup Service"
 
     success "AOSP system extras debloated."
 }
@@ -642,6 +669,8 @@ debloat_vendor_overlays() {
     disable_pkg "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customize Overlay (Alt)"
     disable_pkg "com.mi.globallayout"                            "Mi Global Layout Overlay"
     disable_pkg "com.xiaomi.micloud.sdk"                         "Xiaomi Mi Cloud SDK"
+    disable_pkg "com.oppo.gmail.overlay"                         "OPPO Gmail Overlay"
+    disable_pkg "com.coloros.activation.overlay.common"          "ColorOS Activation Common Overlay"
 
     success "Vendor overlays disabled."
 }
