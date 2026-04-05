@@ -323,7 +323,7 @@ call :uninstall_pkg "com.coloros.encryption"         "ColorOS Private Safe (Secu
 call :uninstall_pkg "com.oppo.mimosiso"              "OPPO Mimosiso"
 call :uninstall_pkg "com.oppo.ovoicemanager"         "OPPO Voice Manager"
 call :uninstall_pkg "com.oppo.partnerbrowsercustomizations" "OPPO Partner Browser Customizations"
-call :disable_pkg   "com.coloros.appmanager"         "ColorOS App Manager"
+
 call :disable_pkg   "com.heytap.themestore"          "HeyTap Theme Store"
 call :disable_pkg   "com.coloros.phonemanager"       "ColorOS Phone Manager"
 call :disable_pkg   "com.caf.fmradio"                "Qualcomm CAF FM Radio"

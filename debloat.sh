@@ -323,9 +323,9 @@ debloat_coloros() {
     uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
     uninstall_pkg "com.coloros.tips"               "ColorOS Tips & What's New"
     uninstall_pkg "com.heytap.easyswitch"          "HeyTap Easy Switch (Cross-Device)"
-    uninstall_pkg "com.coloros.documentmanager"    "ColorOS Document Manager"
+
     uninstall_pkg "com.oppo.assistivetouch"        "OPPO Assistive Touch / Navigator Ball"
-    uninstall_pkg "com.coloros.appmanager"         "ColorOS App Manager"
+
     uninstall_pkg "com.coloros.assistantscreen"    "ColorOS Assistant Screen"
     uninstall_pkg "com.coloros.childrenspace"      "ColorOS Children's Space"
     uninstall_pkg "com.coloros.floatassistant"     "ColorOS Float Assistant"
@@ -427,7 +427,7 @@ debloat_google() {
     uninstall_pkg "com.google.android.apps.docs"                 "Google Drive / Docs"
     uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
     uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
-    uninstall_pkg "com.google.android.gm"                        "Gmail"
+
     uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
     uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
     uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
@@ -567,11 +567,11 @@ debloat_miui_apps() {
     uninstall_pkg "com.mi.globalbrowser"                  "Mi Browser (Global)"
     uninstall_pkg "com.xiaomi.mi_connect_service"         "Mi Connect Service"
     uninstall_pkg "com.xiaomi.discover"                   "Xiaomi Discover"
-    uninstall_pkg "com.miuix.editor"                      "MIUI Photo/Video Editor"
+
     uninstall_pkg "com.xiaomi.mtb"                        "Xiaomi MTB (Message Top Boards)"
     uninstall_pkg "com.xiaomi.mirror"                     "Mi Mirror (Screen Cast)"
-    uninstall_pkg "com.xiaomi.cameramind"                 "Xiaomi CameraMind (AI Camera)"
-    uninstall_pkg "com.xiaomi.cameratools"                "Xiaomi Camera Tools"
+
+
 
     # Disable rather than remove (battery dependency)
     disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
