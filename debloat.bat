@@ -227,7 +227,6 @@ call :uninstall_pkg "com.coloros.diag"               "ColorOS Diagnostics Daemon
 call :uninstall_pkg "com.nearme.push"                "NearMe Push Service (Ad Notifications)"
 call :uninstall_pkg "com.oplus.aiunit"               "OPlus AI Unit (Behavioural Analytics)"
 call :uninstall_pkg "com.oplus.omcservice"           "OPlus Operator Management Content (Promos)"
-call :uninstall_pkg "com.coloros.athena"             "ColorOS Athena (AI Telemetry Service)"
 call :uninstall_pkg "com.coloros.avastofferwall"     "Avast Offer Wall (Ad/Tracking Preload)"
 call :uninstall_pkg "com.coloros.bootreg"            "ColorOS Boot Registry (System Stats)"
 call :uninstall_pkg "com.coloros.healthcheck"        "ColorOS Health Check Service"
