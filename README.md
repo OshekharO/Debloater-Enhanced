@@ -4,7 +4,7 @@
 
 ## Overview
 
-Debloater Enhanced v4.0 is a comprehensive shell/batch script targeting bloatware found on ColorOS 13+, MIUI 14 / HyperOS, and OxygenOS 13/14 devices. It removes or disables unwanted pre-installed apps via ADB without requiring root access, improving performance, privacy, and battery life.
+Debloater Enhanced v2.0 is a comprehensive shell/batch script targeting bloatware found on ColorOS 13+, MIUI 14 / HyperOS, and OxygenOS 13/14 devices. It removes or disables unwanted pre-installed apps via ADB without requiring root access, improving performance, privacy, and battery life.
 
 Packages are organised into focused categories so you can remove only what you do not need. A **dry-run mode** lets you preview every action, and a **restore list** is automatically saved so you can easily undo any change.
 
