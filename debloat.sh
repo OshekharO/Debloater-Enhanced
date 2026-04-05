@@ -352,6 +352,7 @@ debloat_google() {
     echo -e "  ${YELLOW}  NOTE:${NC} Removing Assistant may break some Google integrations."
     confirm "Remove Google bloatware?" || { info "Skipped."; return; }
 
+    # Pre-installed Google apps
     uninstall_pkg "com.google.android.apps.tachyon"              "Google Meet / Duo"
     uninstall_pkg "com.google.android.apps.nbu.paisa.user"       "Google Pay (GPay India)"
     uninstall_pkg "com.google.android.apps.subscriptions.red"    "Google One"
@@ -361,6 +362,7 @@ debloat_google() {
     uninstall_pkg "com.google.android.videos"                    "Google Play Movies & TV"
     uninstall_pkg "com.google.android.apps.books"                "Google Play Books"
     uninstall_pkg "com.android.hotwordenrollment.okgoogle"       "OK Google Hotword Enrolment"
+    uninstall_pkg "com.android.hotwordenrollment.xgoogle"        "X Google Hotword Enrolment"
     uninstall_pkg "com.google.android.apps.googleassistant"      "Google Assistant"
     uninstall_pkg "com.google.android.youtube"                   "YouTube"
     uninstall_pkg "com.google.android.apps.wellbeing"            "Google Digital Wellbeing"
@@ -374,9 +376,37 @@ debloat_google() {
     uninstall_pkg "com.google.android.apps.photos"               "Google Photos"
     uninstall_pkg "com.google.android.feedback"                  "Google Market Feedback Agent"
     uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
+    uninstall_pkg "com.google.android.gm"                        "Gmail"
+    uninstall_pkg "com.google.android.apps.maps"                 "Google Maps"
+    uninstall_pkg "com.google.android.apps.messaging"            "Google Messages"
+    uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
+    uninstall_pkg "com.google.android.dialer"                    "Google Phone / Dialer"
+    uninstall_pkg "com.google.android.contacts"                  "Google Contacts"
+    uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
+    uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
+    uninstall_pkg "com.google.android.onetimeinitializer"        "Google One-Time Initializer"
+    uninstall_pkg "com.google.android.apps.healthdata"           "Google Health Data"
+    uninstall_pkg "com.google.android.adservices.api"            "Google Ad Services API"
 
+    # Disable rather than fully remove (system file-picker, IME fallback, setup, telemetry)
     disable_pkg "com.android.stk"                                "SIM Toolkit"
     disable_pkg "com.android.nfc"                                "NFC Service"
+    disable_pkg "com.google.android.documentsui"                 "Google Documents UI / System Files"
+    disable_pkg "com.google.android.inputmethod.latin"           "Gboard (AOSP Latin IME)"
+    disable_pkg "com.google.android.setupwizard"                 "Google Setup Wizard"
+    disable_pkg "com.google.android.federatedcompute"            "Google Federated Compute (ML)"
+    disable_pkg "com.google.android.healthconnect.controller"    "Health Connect"
+    disable_pkg "com.google.android.gms.location.history"        "Google Location History"
+    disable_pkg "com.google.android.gms.supervision"             "Google Family Link / Supervision"
+    disable_pkg "com.google.mainline.adservices"                 "Google Mainline Ad Services"
+    disable_pkg "com.google.mainline.telemetry"                  "Google Mainline Telemetry"
+    disable_pkg "com.google.android.as.oss"                      "Android System Intelligence (OSS)"
+    disable_pkg "com.google.android.ondevicepersonalization.services" "Google On-Device Personalisation"
+    disable_pkg "com.google.ambient.streaming"                   "Google Ambient Streaming (Cast)"
+    disable_pkg "com.google.android.accessibility.switchaccess"  "Google Switch Access (Accessibility)"
+    disable_pkg "com.google.android.overlay.modules.healthfitness.forframework" "Google Health Fitness Overlay"
+    disable_pkg "com.google.android.cellbroadcastreceiver.overlay.miui"  "Cell Broadcast Receiver MIUI Overlay"
+    disable_pkg "com.google.android.cellbroadcastservice.overlay.miui"   "Cell Broadcast Service MIUI Overlay"
 
     success "Google bloatware debloated."
 }
@@ -404,6 +434,11 @@ debloat_miui_analytics() {
     uninstall_pkg "com.miui.global.analytics"       "MIUI Global Analytics"
     uninstall_pkg "com.miui.hybrid.xiaomihybrid"    "Xiaomi Hybrid Ad Service"
     uninstall_pkg "com.xiaomi.aiasst.service"       "Xiaomi AI Assistant Service (Telemetry)"
+    uninstall_pkg "com.xiaomi.aiasst.vision"        "Xiaomi AI Vision Analytics"
+    uninstall_pkg "com.xiaomi.barrage"              "Xiaomi Barrage (Notification Bullets)"
+
+    disable_pkg "com.miui.misightservice"           "MIUI MiSight Analytics Service"
+    disable_pkg "com.miui.daemon"                   "MIUI Background Daemon"
 
     success "Xiaomi/Redmi analytics & ad packages removed."
 }
@@ -478,8 +513,32 @@ debloat_miui_apps() {
     uninstall_pkg "com.mi.android.globaltranslation"   "Xiaomi Global Translation"
     uninstall_pkg "com.xiaomi.channel"                 "Xiaomi Channel (Promotions)"
 
+    # AOD, utilities & media tools
+    uninstall_pkg "com.miui.aod"                          "MIUI Always-On Display"
+    uninstall_pkg "com.mi.globalminusscreen"              "Mi Global Minus Screen"
+    uninstall_pkg "com.mi.appfinder"                      "Mi App Finder"
+    uninstall_pkg "com.miui.backup"                       "MIUI Backup"
+    uninstall_pkg "com.miui.extraphoto"                   "MIUI Extra Photo Formats"
+    uninstall_pkg "com.xiaomi.calendar"                   "Mi Calendar"
+    uninstall_pkg "com.miui.cleaner"                      "MIUI Phone Cleaner"
+    uninstall_pkg "com.miui.phrase"                       "MIUI Auto Phrase / Quick Phrases"
+    uninstall_pkg "com.mi.android.globalFileexplorer"     "Mi File Explorer (Global)"
+    uninstall_pkg "com.xiaomi.glgm"                       "Xiaomi GLGM (Analytics)"
+    uninstall_pkg "com.mi.globalbrowser"                  "Mi Browser (Global)"
+    uninstall_pkg "com.xiaomi.mi_connect_service"         "Mi Connect Service"
+    uninstall_pkg "com.xiaomi.discover"                   "Xiaomi Discover"
+    uninstall_pkg "com.miuix.editor"                      "MIUI Photo/Video Editor"
+    uninstall_pkg "com.xiaomi.mtb"                        "Xiaomi MTB (Message Top Boards)"
+    uninstall_pkg "com.xiaomi.mirror"                     "Mi Mirror (Screen Cast)"
+    uninstall_pkg "com.xiaomi.cameramind"                 "Xiaomi CameraMind (AI Camera)"
+    uninstall_pkg "com.xiaomi.cameratools"                "Xiaomi Camera Tools"
+
     # Disable rather than remove (battery / security dependency)
     disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
+    disable_pkg "com.miui.miservice"                 "MIUI Mi Service"
+    disable_pkg "com.miui.micloudsync"               "MIUI Mi Cloud Sync"
+    disable_pkg "com.miui.global.packageinstaller"   "MIUI Global Package Installer"
+    disable_pkg "com.miui.accessibility"             "MIUI Accessibility Service"
 
     success "Xiaomi/Redmi system bloat removed."
 }
@@ -530,7 +589,97 @@ debloat_oneplus() {
     success "OnePlus/OxygenOS bloatware removed."
 }
 
-# ── 11. Full debloat (all categories) ────────────────────────────────────────
+# ── 13. AOSP / Android System Extras ─────────────────────────────────────────
+debloat_android_extras() {
+    section "AOSP / Android System Extras"
+    echo -e "  ${DIM}Removes or disables rarely-needed AOSP system apps and background services.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Safe on all brands. Does NOT touch core telephony or Settings."
+    confirm "Remove/disable AOSP system extras?" || { info "Skipped."; return; }
+
+    # Safe to uninstall (no device-critical dependency)
+    uninstall_pkg "com.android.egg"                      "Android Easter Egg"
+    uninstall_pkg "com.android.avatarpicker"             "Android Avatar Picker"
+    uninstall_pkg "com.android.devicediagnostics"        "Android Device Diagnostics"
+    uninstall_pkg "com.android.traceur"                  "Android System Tracer (Developer)"
+    uninstall_pkg "com.android.DeviceAsWebcam"           "Device as Webcam"
+    uninstall_pkg "com.android.providers.partnerbookmarks" "Partner Bookmarks Provider"
+
+    # Disable only (may be invoked by enterprise MDM or carrier flows)
+    disable_pkg "com.android.deskclock"                  "AOSP Desk Clock"
+    disable_pkg "com.android.managedprovisioning"        "Android Managed Provisioning (Enterprise)"
+    disable_pkg "com.android.calllogbackup"              "Call Log Backup Service"
+    disable_pkg "com.android.cameraextensions"           "Camera Extensions"
+    disable_pkg "com.android.carrierdefaultapp"          "Carrier Default App"
+    disable_pkg "com.android.wallpaperbackup"            "Wallpaper Backup Service"
+
+    success "AOSP system extras debloated."
+}
+
+# ── 14. Vendor Overlays & Runtime Resources (RROs) ────────────────────────────
+debloat_vendor_overlays() {
+    section "Vendor Overlays & Runtime Resources (RROs)"
+    echo -e "  ${DIM}Disables MIUI/Xiaomi and carrier RRO overlay packages.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} All entries are DISABLED, not uninstalled, for safe recovery."
+    echo -e "  ${RED}  WARN:${NC} Disabling SystemUI or Settings overlays on some ROMs may alter UI."
+    confirm "Disable vendor overlay packages?" || { info "Skipped."; return; }
+
+    disable_pkg "android.qvaoverlay.common"                      "QVA Common Overlay"
+    disable_pkg "android.autoinstalls.config.Xiaomi.model"       "Xiaomi Auto-Install Config Overlay"
+    disable_pkg "com.android.cellbroadcastreceiver.overlay.common" "Cell Broadcast Receiver Common Overlay"
+    disable_pkg "com.android.inputsettings.overlay.miui"         "Input Settings MIUI Overlay"
+    disable_pkg "com.android.managedprovisioning.overlay"        "Managed Provisioning Overlay"
+    disable_pkg "com.android.phone.auto_generated_characteristics_rro" "Phone Characteristics RRO"
+    disable_pkg "com.android.role.notes.enabled"                 "Notes Role Overlay"
+    disable_pkg "com.android.settings.overlay.miui"              "Settings MIUI Overlay"
+    disable_pkg "com.android.stk.overlay.miui"                   "STK MIUI Overlay"
+    disable_pkg "com.android.systemui.overlay.miui"              "SystemUI MIUI Overlay"
+    disable_pkg "com.miui.miwallpaper.overlay"                   "MIUI Wallpaper Overlay"
+    disable_pkg "com.miui.miwallpaper.overlay.customize"         "MIUI Wallpaper Customise Overlay"
+    disable_pkg "com.miui.phone.carriers.overlay.h3g"            "MIUI H3G Carrier Overlay"
+    disable_pkg "com.miui.phone.carriers.overlay.vodafone"       "MIUI Vodafone Carrier Overlay"
+    disable_pkg "com.miui.settings.rro.device.type.overlay"      "MIUI Settings Device-Type Overlay"
+    disable_pkg "com.miui.wallpaper.overlay"                     "MIUI Wallpaper Generic Overlay"
+    disable_pkg "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customise Overlay (Alt)"
+    disable_pkg "com.mi.globallayout"                            "Mi Global Layout Overlay"
+    disable_pkg "com.xiaomi.micloud.sdk"                         "Xiaomi Mi Cloud SDK"
+
+    success "Vendor overlays disabled."
+}
+
+# ── 15. Qualcomm & Hardware Diagnostics ───────────────────────────────────────
+debloat_qualcomm() {
+    section "Qualcomm & Hardware Diagnostics"
+    echo -e "  ${DIM}Removes OEM factory-test tools and disables Qualcomm background services.${NC}"
+    echo -e "  ${YELLOW}  NOTE:${NC} Safe on Snapdragon devices. Not applicable to MediaTek/Exynos."
+    confirm "Remove/disable Qualcomm & diagnostics packages?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.qualcomm.qti.devicestatisticsservice" "Qualcomm Device Statistics Service"
+    uninstall_pkg "com.miui.cit"                             "MIUI CIT Factory Test Tool"
+    uninstall_pkg "com.goodix.gftest"                        "Goodix Fingerprint Test Tool"
+    uninstall_pkg "com.fingerprints.sensortesttool"          "Fingerprint Sensor Test Tool"
+
+    disable_pkg "com.qualcomm.qti.callfeaturessetting"       "Qualcomm Call Features Setting"
+    disable_pkg "com.qti.qualcomm.deviceinfo"                "Qualcomm Device Info Service"
+    disable_pkg "com.qualcomm.qti.xrcb"                      "Qualcomm XR Callback Service"
+    disable_pkg "com.qualcomm.qti.xrvd.service"              "Qualcomm XR Virtual Display Service"
+
+    success "Qualcomm & hardware diagnostics debloated."
+}
+
+# ── 16. Microsoft & Third-Party Preloads ──────────────────────────────────────
+debloat_microsoft() {
+    section "Microsoft & Third-Party Preloads"
+    echo -e "  ${DIM}Removes Microsoft app-management and cross-device integration preloads.${NC}"
+    confirm "Remove Microsoft & third-party preloads?" || { info "Skipped."; return; }
+
+    uninstall_pkg "com.microsoft.appmanager"                  "Microsoft App Manager"
+    uninstall_pkg "com.microsoftsdk.crossdeviceservicebroker" "Microsoft Cross-Device Service Broker"
+    uninstall_pkg "com.microsoft.deviceintegrationservice"    "Microsoft Device Integration Service"
+
+    success "Microsoft & third-party preloads removed."
+}
+
+# ── 17. Full debloat (all categories) ────────────────────────────────────────
 debloat_all() {
     section "Full Debloat — All Categories"
     echo -e "  ${RED}${BOLD}This will run every debloat category sequentially.${NC}"
@@ -544,6 +693,10 @@ debloat_all() {
     debloat_miui_analytics
     debloat_miui_apps
     debloat_oneplus
+    debloat_android_extras
+    debloat_vendor_overlays
+    debloat_qualcomm
+    debloat_microsoft
 }
 
 # ── List installed packages ───────────────────────────────────────────────────
@@ -659,6 +812,10 @@ main_menu() {
         printf "  │  %-5s %-47s│\n" "[10]" "Debloat: Xiaomi/Redmi Analytics & Ads"
         printf "  │  %-5s %-47s│\n" "[11]" "Debloat: Xiaomi/Redmi System Apps"
         printf "  │  %-5s %-47s│\n" "[12]" "Debloat: OnePlus / OxygenOS bloatware"
+        printf "  │  %-5s %-47s│\n" "[13]" "Debloat: AOSP / Android System Extras"
+        printf "  │  %-5s %-47s│\n" "[14]" "Debloat: Vendor Overlays & RROs"
+        printf "  │  %-5s %-47s│\n" "[15]" "Debloat: Qualcomm & HW Diagnostics"
+        printf "  │  %-5s %-47s│\n" "[16]" "Debloat: Microsoft & 3rd-Party Preloads"
         printf "  │  %-5s %-47s│\n" "[r]"  "Reinstall / restore a package"
         echo "  │                                                     │"
         echo -ne "  │  [d]  Dry-run mode  : "; echo -e "${dr_status}${BOLD}${BLUE}                              │"
@@ -685,6 +842,10 @@ main_menu() {
             10) debloat_miui_analytics ;;
             11) debloat_miui_apps ;;
             12) debloat_oneplus ;;
+            13) debloat_android_extras ;;
+            14) debloat_vendor_overlays ;;
+            15) debloat_qualcomm ;;
+            16) debloat_microsoft ;;
             r|R) reinstall_pkg ;;
             d|D) toggle_dry_run ;;
             l|L) toggle_logging ;;
