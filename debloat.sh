@@ -296,7 +296,6 @@ debloat_coloros() {
     uninstall_pkg "com.coloros.ocrscanner"         "ColorOS Smart Scan (OCR)"
     uninstall_pkg "com.coloros.smartdrive"         "ColorOS Smart Driving"
     uninstall_pkg "com.coloros.oppomultiapp"       "OPPO Clone Phone"
-    uninstall_pkg "com.oplus.multiapp"             "OPlus App Cloner"
     uninstall_pkg "com.oppo.opperationManual"      "OPPO User Guide / Manual (legacy)"
     uninstall_pkg "com.oppo.operationManual"       "OPPO Operation Manual"
     uninstall_pkg "com.os.docvault"                "Doc Vault"
@@ -309,7 +308,6 @@ debloat_coloros() {
     uninstall_pkg "com.oplus.linker"               "OPlus PC Connect"
     uninstall_pkg "com.oplus.synergy"              "Hey Synergy (Cross-Device)"
     uninstall_pkg "com.finshell.fin"               "Finshell"
-    uninstall_pkg "com.oplus.cosa"                 "App Enhancement Engine (COSA)"
     uninstall_pkg "com.heytap.pictorial"           "Lockscreen Magazine"
     uninstall_pkg "com.oppo.sos"                   "OPPO Emergency SOS"
     uninstall_pkg "com.oplus.encryption"           "Private Safe"
@@ -347,6 +345,8 @@ debloat_coloros() {
     disable_pkg "com.caf.fmradio"                  "Qualcomm CAF FM Radio"
     disable_pkg "com.android.fmradio"              "FM Radio"
     disable_pkg "com.glance.internet"              "Glance (Lock Screen Ads)"
+    disable_pkg "com.oplus.multiapp"               "OPlus App Cloner"
+    disable_pkg "com.oplus.cosa"                   "App Enhancement Engine (COSA)"
 
     success "ColorOS bloatware debloated."
 }
@@ -569,7 +569,6 @@ debloat_miui_apps() {
 
 
     # Disable rather than remove (battery dependency)
-    disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
     disable_pkg "com.miui.miservice"                 "MIUI Mi Service"
     disable_pkg "com.miui.micloudsync"               "MIUI Mi Cloud Sync"
 
@@ -663,7 +662,6 @@ debloat_vendor_overlays() {
     disable_pkg "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customize Overlay (Alt)"
     disable_pkg "com.mi.globallayout"                            "Mi Global Layout Overlay"
     disable_pkg "com.xiaomi.micloud.sdk"                         "Xiaomi Mi Cloud SDK"
-    disable_pkg "com.oppo.gmail.overlay"                         "OPPO Gmail Overlay"
     disable_pkg "com.coloros.activation.overlay.common"          "ColorOS Activation Common Overlay"
 
     success "Vendor overlays disabled."
