@@ -430,14 +430,12 @@ debloat_google() {
     uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
     uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
     uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
-    uninstall_pkg "com.google.android.onetimeinitializer"        "Google One-Time Initializer"
     uninstall_pkg "com.google.android.apps.healthdata"           "Google Health Data"
     uninstall_pkg "com.google.android.adservices.api"            "Google Ad Services API"
 
     # Disable rather than fully remove (setup, telemetry, overlays)
     disable_pkg "com.android.stk"                                "SIM Toolkit"
     disable_pkg "com.android.nfc"                                "NFC Service"
-    disable_pkg "com.google.android.setupwizard"                 "Google Setup Wizard"
     disable_pkg "com.google.android.federatedcompute"            "Google Federated Compute (ML)"
     disable_pkg "com.google.android.healthconnect.controller"    "Health Connect"
     disable_pkg "com.google.android.gms.location.history"        "Google Location History"
