@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # Debloater Enhanced — Multi-Brand Edition
-# Version 4.0 | Author: Saksham Shekher
+# Version 2.0 | Author: Saksham Shekher
 # Targets: OPPO / Realme (ColorOS 13+) | Xiaomi / Redmi (MIUI 14 / HyperOS)
 #          OnePlus (OxygenOS 13/14)
 # =============================================================================
@@ -72,7 +72,7 @@ print_banner() {
     echo -e "${BOLD}${MAGENTA}"
     echo "  ╔══════════════════════════════════════════════════════╗"
     echo "  ║       Debloater Enhanced — Multi-Brand Edition       ║"
-    echo "  ║                     Version 4.0                      ║"
+    echo "  ║                     Version 2.0                      ║"
     echo "  ╚══════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo -e "  ${DIM}Author  : Saksham Shekher${NC}"
@@ -450,8 +450,6 @@ debloat_google() {
     disable_pkg "com.google.ambient.streaming"                   "Google Ambient Streaming (Cast)"
     disable_pkg "com.google.android.accessibility.switchaccess"  "Google Switch Access (Accessibility)"
     disable_pkg "com.google.android.overlay.modules.healthfitness.forframework" "Google Health Fitness Overlay"
-    disable_pkg "com.google.android.cellbroadcastreceiver.overlay.miui"  "Cell Broadcast Receiver MIUI Overlay"
-    disable_pkg "com.google.android.cellbroadcastservice.overlay.miui"   "Cell Broadcast Service MIUI Overlay"
 
     success "Google bloatware debloated."
 }
@@ -654,14 +652,11 @@ debloat_vendor_overlays() {
 
     disable_pkg "android.qvaoverlay.common"                      "QVA Common Overlay"
     disable_pkg "android.autoinstalls.config.Xiaomi.model"       "Xiaomi Auto-Install Config Overlay"
-    disable_pkg "com.android.cellbroadcastreceiver.overlay.common" "Cell Broadcast Receiver Common Overlay"
     disable_pkg "com.android.inputsettings.overlay.miui"         "Input Settings MIUI Overlay"
     disable_pkg "com.android.managedprovisioning.overlay"        "Managed Provisioning Overlay"
     disable_pkg "com.android.phone.auto_generated_characteristics_rro" "Phone Characteristics RRO"
     disable_pkg "com.android.role.notes.enabled"                 "Notes Role Overlay"
-    disable_pkg "com.android.settings.overlay.miui"              "Settings MIUI Overlay"
     disable_pkg "com.android.stk.overlay.miui"                   "STK MIUI Overlay"
-    disable_pkg "com.android.systemui.overlay.miui"              "SystemUI MIUI Overlay"
     disable_pkg "com.miui.miwallpaper.overlay"                   "MIUI Wallpaper Overlay"
     disable_pkg "com.miui.miwallpaper.overlay.customize"         "MIUI Wallpaper Customize Overlay"
     disable_pkg "com.miui.phone.carriers.overlay.h3g"            "MIUI H3G Carrier Overlay"
