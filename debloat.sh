@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =============================================================================
 # Debloater Enhanced — Multi-Brand Edition
-# Version 3.0 | Author: Saksham Shekher
+# Version 4.0 | Author: Saksham Shekher
 # Targets: OPPO / Realme (ColorOS 13+) | Xiaomi / Redmi (MIUI 14 / HyperOS)
 #          OnePlus (OxygenOS 13/14)
 # =============================================================================
@@ -27,6 +27,8 @@ DRY_RUN=false
 LOG_ENABLED=false
 LOG_FILE="debloater_$(date +%Y%m%d_%H%M%S).log"
 REMOVED_PKGS=()
+DISABLED_PKGS=()
+RESTORE_FILE=""     # lazy-initialised on first successful removal/disable
 
 # ── Logging helpers ───────────────────────────────────────────────────────────
 info()    { echo -e "  ${CYAN}[INFO]${NC}  $*"; }
@@ -39,12 +41,38 @@ log_action() {
     $LOG_ENABLED && echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >> "$LOG_FILE"
 }
 
+# ── Restore-file helper ───────────────────────────────────────────────────────
+# Lazily creates restore_packages_*.txt on the first successful action,
+# then appends one line per package so the user can reinstall/re-enable later.
+_write_restore_file() {
+    local pkg="$1" action="$2"
+    if [[ -z "$RESTORE_FILE" ]]; then
+        RESTORE_FILE="restore_packages_$(date +%Y%m%d_%H%M%S).txt"
+        local model brand
+        model=$(adb shell getprop ro.product.model 2>/dev/null | tr -d '\r')
+        brand=$(adb shell getprop ro.product.brand 2>/dev/null | tr -d '\r')
+        {
+            printf "# Debloater Enhanced — Package Restore List\n"
+            printf "# Generated : %s\n" "$(date '+%Y-%m-%d %H:%M:%S')"
+            printf "# Device    : %s (%s)\n" "$model" "$brand"
+            printf "#\n"
+            printf "# To reinstall a REMOVED package:\n"
+            printf "#   adb shell cmd package install-existing <package_id>\n"
+            printf "#\n"
+            printf "# To re-enable a DISABLED package:\n"
+            printf "#   adb shell pm enable --user 0 <package_id>\n"
+            printf "# ──────────────────────────────────────────────────────────\n"
+        } > "$RESTORE_FILE"
+    fi
+    printf "%-60s  # %s\n" "$pkg" "$action" >> "$RESTORE_FILE"
+}
+
 # ── Banner ────────────────────────────────────────────────────────────────────
 print_banner() {
     echo -e "${BOLD}${MAGENTA}"
     echo "  ╔══════════════════════════════════════════════════════╗"
     echo "  ║       Debloater Enhanced — Multi-Brand Edition       ║"
-    echo "  ║                     Version 3.0                      ║"
+    echo "  ║                     Version 4.0                      ║"
     echo "  ╚══════════════════════════════════════════════════════╝"
     echo -e "${NC}"
     echo -e "  ${DIM}Author  : Saksham Shekher${NC}"
@@ -133,6 +161,7 @@ uninstall_pkg() {
         echo -e "  ${GREEN}  REMOVED${NC} ${BOLD}${name}${NC} (${pkg})"
         log_action "REMOVED $pkg — $name"
         REMOVED_PKGS+=("$pkg")
+        _write_restore_file "$pkg" "REMOVED"
     else
         echo -e "  ${RED}  FAILED${NC}  ${BOLD}${name}${NC} (${pkg}) → ${out}"
         log_action "FAILED  $pkg — $name → $out"
@@ -158,6 +187,8 @@ disable_pkg() {
     if echo "$out" | grep -qi "disabled"; then
         echo -e "  ${CYAN}  DISABLED${NC} ${BOLD}${name}${NC} (${pkg})"
         log_action "DISABLED $pkg — $name"
+        DISABLED_PKGS+=("$pkg")
+        _write_restore_file "$pkg" "DISABLED"
     else
         echo -e "  ${RED}  FAILED${NC}  disable ${BOLD}${name}${NC} (${pkg}) → ${out}"
         log_action "FAILED  disable $pkg — $name → $out"
@@ -197,6 +228,9 @@ debloat_analytics() {
     uninstall_pkg "com.realme.securitycheck"       "Realme Security Analysis"
     uninstall_pkg "com.opos.cs"                    "OPOS Content Services / Hot Apps"
     uninstall_pkg "com.coloros.diag"               "ColorOS Diagnostics Daemon"
+    uninstall_pkg "com.nearme.push"                "NearMe Push Service (Ad Notifications)"
+    uninstall_pkg "com.oplus.aiunit"               "OPlus AI Unit (Behavioural Analytics)"
+    uninstall_pkg "com.oplus.omcservice"           "OPlus Operator Management Content (Promos)"
 
     success "Analytics & telemetry debloated."
 }
@@ -252,6 +286,11 @@ debloat_coloros() {
     uninstall_pkg "com.oplus.babelfish"            "OPlus Babelfish Translation"
     uninstall_pkg "com.heytap.speechassist"        "HeyTap Speech Assistant"
     uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
+    uninstall_pkg "com.coloros.weather"            "ColorOS Weather"
+    uninstall_pkg "com.coloros.tips"               "ColorOS Tips & What's New"
+    uninstall_pkg "com.heytap.easyswitch"          "HeyTap Easy Switch (Cross-Device)"
+    uninstall_pkg "com.coloros.documentmanager"    "ColorOS Document Manager"
+    uninstall_pkg "com.oppo.assistivetouch"        "OPPO Assistive Touch / Navigator Ball"
 
     # Disable rather than remove (affects OTA / restore flow)
     disable_pkg "com.heytap.themestore"            "HeyTap Theme Store"
@@ -362,6 +401,9 @@ debloat_miui_analytics() {
     uninstall_pkg "com.bsp.catchlog"                "BSP Catchlog (System Telemetry)"
     uninstall_pkg "com.xiaomi.miservice"            "Xiaomi Mi Service Framework (Telemetry)"
     uninstall_pkg "com.miui.catcherpatch"           "MIUI Catcher Patch"
+    uninstall_pkg "com.miui.global.analytics"       "MIUI Global Analytics"
+    uninstall_pkg "com.miui.hybrid.xiaomihybrid"    "Xiaomi Hybrid Ad Service"
+    uninstall_pkg "com.xiaomi.aiasst.service"       "Xiaomi AI Assistant Service (Telemetry)"
 
     success "Xiaomi/Redmi analytics & ad packages removed."
 }
@@ -420,6 +462,22 @@ debloat_miui_apps() {
     uninstall_pkg "com.iflytek.inputmethod.miui"      "iFlytek Voice Input"
     uninstall_pkg "com.baidu.input_mi"                "Baidu Input Method"
 
+    # Browser & search
+    uninstall_pkg "com.miui.browser"                  "Mi Browser"
+
+    # System cleaners
+    uninstall_pkg "com.miui.cleanmaster"               "MIUI Clean Master / Phone Cleaner"
+
+    # Gaming
+    uninstall_pkg "com.xiaomi.gamecenter"              "Xiaomi Game Center"
+
+    # Communication & misc
+    uninstall_pkg "com.miui.antispam"                  "MIUI Anti-Spam Filter"
+    uninstall_pkg "com.miui.newchannels"               "MIUI News Channels"
+    uninstall_pkg "com.miui.translation"               "MIUI Translation Service"
+    uninstall_pkg "com.mi.android.globaltranslation"   "Xiaomi Global Translation"
+    uninstall_pkg "com.xiaomi.channel"                 "Xiaomi Channel (Promotions)"
+
     # Disable rather than remove (battery / security dependency)
     disable_pkg "com.miui.powerkeeper"               "MIUI Power Keeper (Battery Mgmt)"
 
@@ -462,6 +520,12 @@ debloat_oneplus() {
     # Widgets & push notifications
     uninstall_pkg "net.oneplus.widget"               "OnePlus Widgets"
     uninstall_pkg "com.oneplus.push"                 "OnePlus Push Service"
+
+    # Amazon preload (some regional variants)
+    uninstall_pkg "com.amazon.appstore"              "Amazon App Store (Preload)"
+
+    # Focus mode
+    uninstall_pkg "com.oneplus.zen"                  "OnePlus Zen Mode"
 
     success "OnePlus/OxygenOS bloatware removed."
 }
@@ -549,16 +613,26 @@ toggle_logging() {
 # ── Session summary ───────────────────────────────────────────────────────────
 print_summary() {
     section "Session Summary"
-    echo -e "  ${BOLD}Packages removed this session:${NC} ${#REMOVED_PKGS[@]}"
+    echo -e "  ${BOLD}Packages removed this session :${NC} ${#REMOVED_PKGS[@]}"
     local p
     for p in "${REMOVED_PKGS[@]}"; do
+        echo -e "    ${DIM}• ${p}${NC}"
+    done
+    echo -e "  ${BOLD}Packages disabled this session:${NC} ${#DISABLED_PKGS[@]}"
+    for p in "${DISABLED_PKGS[@]}"; do
         echo -e "    ${DIM}• ${p}${NC}"
     done
     if $LOG_ENABLED; then
         echo -e "\n  ${DIM}Log saved to: ${LOG_FILE}${NC}"
     fi
-    echo -e "\n  ${GREEN}${BOLD}To restore any removed package:${NC}"
-    echo -e "  ${DIM}adb shell cmd package install-existing <package.name>${NC}"
+    if [[ -n "$RESTORE_FILE" ]]; then
+        echo -e "\n  ${GREEN}${BOLD}Restore list saved to: ${RESTORE_FILE}${NC}"
+        echo -e "  ${DIM}Reinstall : adb shell cmd package install-existing <package_id>${NC}"
+        echo -e "  ${DIM}Re-enable : adb shell pm enable --user 0 <package_id>${NC}"
+    else
+        echo -e "\n  ${GREEN}${BOLD}To restore any removed package:${NC}"
+        echo -e "  ${DIM}adb shell cmd package install-existing <package.name>${NC}"
+    fi
     echo
 }
 

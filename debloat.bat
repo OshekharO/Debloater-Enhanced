@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 :: =============================================================================
 :: Debloater Enhanced - Multi-Brand Edition
-:: Version 3.0  |  Author: Saksham Shekher
+:: Version 4.0  |  Author: Saksham Shekher
 :: Targets: OPPO / Realme (ColorOS 13+) | Xiaomi / Redmi (MIUI 14 / HyperOS)
 ::          OnePlus (OxygenOS 13/14)
 :: =============================================================================
@@ -28,11 +28,15 @@ set "NC=%ESC%[0m"
 set DRY_RUN=0
 set LOG_ENABLED=0
 set REMOVED_COUNT=0
+set DISABLED_COUNT=0
+set "RESTORE_FILE="
 for /f "tokens=2 delims==" %%a in ('wmic os get localdatetime /value 2^>nul') do set "WMIC_DT=%%a"
 if defined WMIC_DT (
     set "LOG_FILE=debloater_!WMIC_DT:~0,8!_!WMIC_DT:~8,6!.log"
+    set "RESTORE_FILE=restore_packages_!WMIC_DT:~0,8!_!WMIC_DT:~8,6!.txt"
 ) else (
     set "LOG_FILE=debloater_session.log"
+    set "RESTORE_FILE=restore_packages_session.txt"
 )
 
 cls
@@ -48,7 +52,7 @@ goto :eof
 echo.
 echo %MAGENTA%%BOLD%  +========================================================+
 echo   ^|    Debloater Enhanced - Multi-Brand Edition           ^|
-echo   ^|                    Version 3.0                        ^|
+echo   ^|                    Version 4.0                        ^|
 echo   +========================================================+%NC%
 echo.
 echo   %DIM%Author  : Saksham Shekher%NC%
@@ -119,6 +123,26 @@ echo.
 goto :eof
 
 :: =============================================================================
+:: :init_restore_file  — writes the restore-file header the first time it is called
+:init_restore_file
+if exist "!RESTORE_FILE!" goto :eof
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.model 2^>nul') do set "RF_MODEL=%%a"
+for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand 2^>nul') do set "RF_BRAND=%%a"
+(
+    echo # Debloater Enhanced -- Package Restore List
+    echo # Generated : %DATE% %TIME%
+    echo # Device    : !RF_MODEL! ^(!RF_BRAND!^)
+    echo #
+    echo # To reinstall a REMOVED package:
+    echo #   adb shell cmd package install-existing ^<package_id^>
+    echo #
+    echo # To re-enable a DISABLED package:
+    echo #   adb shell pm enable --user 0 ^<package_id^>
+    echo # ──────────────────────────────────────────────────────────
+) > "!RESTORE_FILE!"
+goto :eof
+
+:: =============================================================================
 :: :uninstall_pkg  %1=package  %2=friendly-name
 :uninstall_pkg
 adb shell pm list packages 2>nul | findstr /c:"package:%~1" >nul 2>&1
@@ -136,6 +160,8 @@ if !errorlevel!==0 (
     echo   %GREEN%  REMOVED%NC% %BOLD%%~2%NC% ^(%~1^)
     set /a REMOVED_COUNT+=1
     if !LOG_ENABLED!==1 echo REMOVED %~1 - %~2 >> "!LOG_FILE!"
+    call :init_restore_file
+    >>"!RESTORE_FILE!" echo %~1   # REMOVED
 ) else (
     echo   %RED%  FAILED%NC%  %BOLD%%~2%NC% ^(%~1^)
     if !LOG_ENABLED!==1 echo FAILED  %~1 - %~2 >> "!LOG_FILE!"
@@ -159,6 +185,9 @@ echo !PM_RESULT! | findstr /i "disabled" >nul 2>&1
 if !errorlevel!==0 (
     echo   %CYAN%  DISABLED%NC% %BOLD%%~2%NC% ^(%~1^)
     if !LOG_ENABLED!==1 echo DISABLED %~1 - %~2 >> "!LOG_FILE!"
+    set /a DISABLED_COUNT+=1
+    call :init_restore_file
+    >>"!RESTORE_FILE!" echo %~1   # DISABLED
 ) else (
     echo   %RED%  FAILED%NC%  disable %BOLD%%~2%NC% ^(%~1^)
 )
@@ -195,6 +224,9 @@ call :uninstall_pkg "com.oppoex.afterservice"        "OPPO After-Sales Diagnosti
 call :uninstall_pkg "com.realme.securitycheck"       "Realme Security Analysis"
 call :uninstall_pkg "com.opos.cs"                    "OPOS Content Services / Hot Apps"
 call :uninstall_pkg "com.coloros.diag"               "ColorOS Diagnostics Daemon"
+call :uninstall_pkg "com.nearme.push"                "NearMe Push Service (Ad Notifications)"
+call :uninstall_pkg "com.oplus.aiunit"               "OPlus AI Unit (Behavioural Analytics)"
+call :uninstall_pkg "com.oplus.omcservice"           "OPlus Operator Management Content (Promos)"
 
 echo   %GREEN%[OK]%NC%    Analytics ^& telemetry debloated.
 goto :eof
@@ -243,6 +275,11 @@ call :uninstall_pkg "com.oplus.omoji"                "OPlus Omoji (AR Emoji)"
 call :uninstall_pkg "com.oplus.babelfish"            "OPlus Babelfish Translation"
 call :uninstall_pkg "com.heytap.speechassist"        "HeyTap Speech Assistant"
 call :uninstall_pkg "com.nearme.live"                "NearMe Live Streaming"
+call :uninstall_pkg "com.coloros.weather"            "ColorOS Weather"
+call :uninstall_pkg "com.coloros.tips"               "ColorOS Tips ^& What's New"
+call :uninstall_pkg "com.heytap.easyswitch"          "HeyTap Easy Switch (Cross-Device)"
+call :uninstall_pkg "com.coloros.documentmanager"    "ColorOS Document Manager"
+call :uninstall_pkg "com.oppo.assistivetouch"        "OPPO Assistive Touch / Navigator Ball"
 call :disable_pkg   "com.heytap.themestore"          "HeyTap Theme Store"
 call :disable_pkg   "com.coloros.phonemanager"       "ColorOS Phone Manager"
 call :disable_pkg   "com.android.fmradio"            "FM Radio"
@@ -360,6 +397,9 @@ call :uninstall_pkg "com.xiaomi.mipicks"              "Mi Picks (Promotional Con
 call :uninstall_pkg "com.bsp.catchlog"                "BSP Catchlog (System Telemetry)"
 call :uninstall_pkg "com.xiaomi.miservice"            "Xiaomi Mi Service Framework (Telemetry)"
 call :uninstall_pkg "com.miui.catcherpatch"           "MIUI Catcher Patch"
+call :uninstall_pkg "com.miui.global.analytics"       "MIUI Global Analytics"
+call :uninstall_pkg "com.miui.hybrid.xiaomihybrid"    "Xiaomi Hybrid Ad Service"
+call :uninstall_pkg "com.xiaomi.aiasst.service"       "Xiaomi AI Assistant Service (Telemetry)"
 
 echo   %GREEN%[OK]%NC%    Xiaomi/Redmi analytics ^& ad packages removed.
 goto :eof
@@ -404,6 +444,14 @@ call :uninstall_pkg "com.xiaomi.payment"               "Xiaomi Payment / Mi Pay"
 call :uninstall_pkg "com.sohu.inputmethod.sogou.xiaomi" "Sogou Input Method"
 call :uninstall_pkg "com.iflytek.inputmethod.miui"      "iFlytek Voice Input"
 call :uninstall_pkg "com.baidu.input_mi"                "Baidu Input Method"
+call :uninstall_pkg "com.miui.browser"                  "Mi Browser"
+call :uninstall_pkg "com.miui.cleanmaster"              "MIUI Clean Master / Phone Cleaner"
+call :uninstall_pkg "com.xiaomi.gamecenter"             "Xiaomi Game Center"
+call :uninstall_pkg "com.miui.antispam"                 "MIUI Anti-Spam Filter"
+call :uninstall_pkg "com.miui.newchannels"              "MIUI News Channels"
+call :uninstall_pkg "com.miui.translation"              "MIUI Translation Service"
+call :uninstall_pkg "com.mi.android.globaltranslation"  "Xiaomi Global Translation"
+call :uninstall_pkg "com.xiaomi.channel"                "Xiaomi Channel (Promotions)"
 call :disable_pkg   "com.miui.powerkeeper"             "MIUI Power Keeper (Battery Mgmt)"
 
 echo   %GREEN%[OK]%NC%    Xiaomi/Redmi system bloat removed.
@@ -436,6 +484,8 @@ call :uninstall_pkg "com.oneplus.health"               "OnePlus Health"
 call :uninstall_pkg "com.oneplus.gamespace"            "OnePlus Game Space"
 call :uninstall_pkg "net.oneplus.widget"               "OnePlus Widgets"
 call :uninstall_pkg "com.oneplus.push"                 "OnePlus Push Service"
+call :uninstall_pkg "com.amazon.appstore"              "Amazon App Store (Preload)"
+call :uninstall_pkg "com.oneplus.zen"                  "OnePlus Zen Mode"
 
 echo   %GREEN%[OK]%NC%    OnePlus/OxygenOS bloatware removed.
 goto :eof
@@ -519,10 +569,17 @@ goto :eof
 :print_summary
 echo.
 echo %BLUE%  == Session Summary ==%NC%
-echo   %BOLD%Packages removed this session:%NC% !REMOVED_COUNT!
+echo   %BOLD%Packages removed this session :%NC% !REMOVED_COUNT!
+echo   %BOLD%Packages disabled this session:%NC% !DISABLED_COUNT!
 echo.
-echo   %GREEN%%BOLD%To restore any removed package:%NC%
-echo   %DIM%adb shell cmd package install-existing ^<package.name^>%NC%
+if exist "!RESTORE_FILE!" (
+    echo   %GREEN%%BOLD%Restore list saved to: !RESTORE_FILE!%NC%
+    echo   %DIM%Reinstall : adb shell cmd package install-existing ^<package_id^>%NC%
+    echo   %DIM%Re-enable : adb shell pm enable --user 0 ^<package_id^>%NC%
+) else (
+    echo   %GREEN%%BOLD%To restore any removed package:%NC%
+    echo   %DIM%adb shell cmd package install-existing ^<package.name^>%NC%
+)
 echo.
 goto :eof
 
