@@ -233,7 +233,6 @@ debloat_analytics() {
     uninstall_pkg "com.oplus.omcservice"           "OPlus Operator Management Content (Promos)"
 
     # OPPO/ColorOS analytics, diagnostics & telemetry
-    uninstall_pkg "com.coloros.athena"             "ColorOS Athena (AI Telemetry Service)"
     uninstall_pkg "com.coloros.avastofferwall"     "Avast Offer Wall (Ad/Tracking Preload)"
     uninstall_pkg "com.coloros.bootreg"            "ColorOS Boot Registry (System Stats)"
     uninstall_pkg "com.coloros.healthcheck"        "ColorOS Health Check Service"
