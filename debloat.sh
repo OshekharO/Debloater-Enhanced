@@ -28,7 +28,7 @@ LOG_ENABLED=false
 LOG_FILE="debloater_$(date +%Y%m%d_%H%M%S).log"
 REMOVED_PKGS=()
 DISABLED_PKGS=()
-RESTORE_FILE=""     # lazy-initialised on first successful removal/disable
+RESTORE_FILE=""     # lazy-initialized on first successful removal/disable
 
 # ── Logging helpers ───────────────────────────────────────────────────────────
 info()    { echo -e "  ${CYAN}[INFO]${NC}  $*"; }
@@ -634,12 +634,12 @@ debloat_vendor_overlays() {
     disable_pkg "com.android.stk.overlay.miui"                   "STK MIUI Overlay"
     disable_pkg "com.android.systemui.overlay.miui"              "SystemUI MIUI Overlay"
     disable_pkg "com.miui.miwallpaper.overlay"                   "MIUI Wallpaper Overlay"
-    disable_pkg "com.miui.miwallpaper.overlay.customize"         "MIUI Wallpaper Customise Overlay"
+    disable_pkg "com.miui.miwallpaper.overlay.customize"         "MIUI Wallpaper Customize Overlay"
     disable_pkg "com.miui.phone.carriers.overlay.h3g"            "MIUI H3G Carrier Overlay"
     disable_pkg "com.miui.phone.carriers.overlay.vodafone"       "MIUI Vodafone Carrier Overlay"
     disable_pkg "com.miui.settings.rro.device.type.overlay"      "MIUI Settings Device-Type Overlay"
     disable_pkg "com.miui.wallpaper.overlay"                     "MIUI Wallpaper Generic Overlay"
-    disable_pkg "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customise Overlay (Alt)"
+    disable_pkg "com.miui.wallpaper.overlay.customize"           "MIUI Wallpaper Customize Overlay (Alt)"
     disable_pkg "com.mi.globallayout"                            "Mi Global Layout Overlay"
     disable_pkg "com.xiaomi.micloud.sdk"                         "Xiaomi Mi Cloud SDK"
 
