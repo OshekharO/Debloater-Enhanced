@@ -336,6 +336,8 @@ debloat_coloros() {
     uninstall_pkg "com.coloros.soundrecorder"      "ColorOS Sound Recorder"
     uninstall_pkg "com.coloros.speechassist"       "ColorOS Speech Assist"
     uninstall_pkg "com.coloros.translate.engine"   "ColorOS Translate Engine"
+    uninstall_pkg "com.coloros.calculator"         "ColorOS Calculator"
+    uninstall_pkg "com.coloros.encryption"         "ColorOS Private Safe (Secure Vault)"
     uninstall_pkg "com.oppo.mimosiso"              "OPPO Mimosiso"
     uninstall_pkg "com.oppo.ovoicemanager"         "OPPO Voice Manager"
     uninstall_pkg "com.oppo.partnerbrowsercustomizations" "OPPO Partner Browser Customizations"
