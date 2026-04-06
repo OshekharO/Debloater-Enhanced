@@ -428,14 +428,11 @@ debloat_google() {
     uninstall_pkg "com.google.android.projection.gearhead"       "Android Auto"
 
     uninstall_pkg "com.google.android.apps.safetyhub"            "Google Personal Safety"
-    uninstall_pkg "com.google.android.googlequicksearchbox"      "Google Search App (GSB)"
     uninstall_pkg "com.google.android.apps.restore"              "Google Device Restore"
     uninstall_pkg "com.google.android.apps.healthdata"           "Google Health Data"
     uninstall_pkg "com.google.android.adservices.api"            "Google Ad Services API"
 
     # Disable rather than fully remove (setup, telemetry, overlays)
-    disable_pkg "com.android.stk"                                "SIM Toolkit"
-    disable_pkg "com.android.nfc"                                "NFC Service"
     disable_pkg "com.google.android.federatedcompute"            "Google Federated Compute (ML)"
     disable_pkg "com.google.android.healthconnect.controller"    "Health Connect"
     disable_pkg "com.google.android.gms.location.history"        "Google Location History"
@@ -478,7 +475,6 @@ debloat_miui_analytics() {
     uninstall_pkg "com.xiaomi.barrage"              "Xiaomi Barrage (Notification Bullets)"
 
     disable_pkg "com.miui.misightservice"           "MIUI MiSight Analytics Service"
-    disable_pkg "com.miui.daemon"                   "MIUI Background Daemon"
 
     success "Xiaomi/Redmi analytics & ad packages removed."
 }
@@ -498,7 +494,6 @@ debloat_miui_apps() {
     uninstall_pkg "com.miui.newhome"                 "MIUI New Home (Wallpaper Suggestions)"
     uninstall_pkg "com.miui.suggest"                 "MIUI App Suggestions"
     uninstall_pkg "com.miui.android.fashiongallery"  "MIUI Fashion Gallery (Lock Screen Mag)"
-    uninstall_pkg "com.miui.miwallpaper"             "MIUI AI Wallpaper"
 
     # Multimedia & utilities
     uninstall_pkg "com.miui.player"                  "Mi Music Player"
@@ -516,10 +511,6 @@ debloat_miui_apps() {
     uninstall_pkg "com.miui.mishare.connectivity"    "Mi Share (File Transfer)"
     uninstall_pkg "com.xiaomi.midrop"                "Mi Drop (P2P File Sharing)"
     uninstall_pkg "com.milink.service"               "MiLink Cross-Device Service"
-
-    # Cloud & backup
-    uninstall_pkg "com.miui.cloudbackup"             "MIUI Cloud Backup"
-    uninstall_pkg "com.miui.cloudservice"            "MIUI Cloud Service"
 
     # Smart home & IoT
     uninstall_pkg "com.xiaomi.smarthome"             "Mi Home (Smart Home Hub)"
