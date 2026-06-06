@@ -86,7 +86,7 @@ if not defined DEVICE_FOUND (
     echo          2. Connect via USB and tap Allow on device prompt
     echo          3. Ensure your USB cable supports data transfer
     echo.
-    if /i not "%CHECK_MODE%"=="soft" pause
+    if /i not "!CHECK_MODE!"=="soft" pause
     exit /b 1
 )
 goto :eof
