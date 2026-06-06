@@ -76,9 +76,9 @@ goto :eof
 :: =============================================================================
 :check_device
 set "CHECK_MODE=%~1"
-set "DEVICE_FOUND="
-for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set "DEVICE_FOUND=%%a"
-if not defined DEVICE_FOUND (
+set "DEVICE_COUNT=0"
+for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set /a DEVICE_COUNT+=1
+if "!DEVICE_COUNT!"=="0" (
     echo   %RED%[ERR]%NC%   No authorised device detected.
     echo.
     echo          Steps to fix:
@@ -86,6 +86,12 @@ if not defined DEVICE_FOUND (
     echo          2. Connect via USB and tap Allow on device prompt
     echo          3. Ensure your USB cable supports data transfer
     echo.
+    if /i not "!CHECK_MODE!"=="soft" pause
+    exit /b 1
+)
+if !DEVICE_COUNT! gtr 1 if not defined ANDROID_SERIAL (
+    echo   %RED%[ERR]%NC%   Multiple authorised devices detected.
+    echo          Set ANDROID_SERIAL to the target device serial and retry.
     if /i not "!CHECK_MODE!"=="soft" pause
     exit /b 1
 )

@@ -105,7 +105,13 @@ check_device() {
         exit 1
     fi
     if [[ "$count" -gt 1 ]]; then
-        warn "Multiple devices found. Using the first one. Set ANDROID_SERIAL to target a specific device."
+        if [[ -z "${ANDROID_SERIAL:-}" ]]; then
+            error "Multiple authorised devices detected. Set ANDROID_SERIAL to target one device."
+            if [[ "$fail_mode" == "return" ]]; then
+                return 1
+            fi
+            exit 1
+        fi
     fi
     return 0
 }
