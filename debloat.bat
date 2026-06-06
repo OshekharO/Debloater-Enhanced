@@ -75,8 +75,10 @@ goto :eof
 
 :: =============================================================================
 :check_device
-for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set "DEVICE_FOUND=%%a"
-if not defined DEVICE_FOUND (
+set "CHECK_MODE=%~1"
+set "DEVICE_COUNT=0"
+for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set /a DEVICE_COUNT+=1
+if "!DEVICE_COUNT!"=="0" (
     echo   %RED%[ERR]%NC%   No authorised device detected.
     echo.
     echo          Steps to fix:
@@ -84,7 +86,13 @@ if not defined DEVICE_FOUND (
     echo          2. Connect via USB and tap Allow on device prompt
     echo          3. Ensure your USB cable supports data transfer
     echo.
-    pause
+    if /i not "!CHECK_MODE!"=="soft" pause
+    exit /b 1
+)
+if !DEVICE_COUNT! gtr 1 if not defined ANDROID_SERIAL (
+    echo   %RED%[ERR]%NC%   Multiple authorised devices detected.
+    echo          Set ANDROID_SERIAL to the target device serial and retry.
+    if /i not "!CHECK_MODE!"=="soft" pause
     exit /b 1
 )
 goto :eof
@@ -774,23 +782,23 @@ echo.
 
 set /p "OPTION=  Enter option: "
 
-if "!OPTION!"=="1"  (call :list_packages             & goto menu_loop)
-if "!OPTION!"=="2"  (call :debloat_analytics         & goto menu_loop)
-if "!OPTION!"=="3"  (call :debloat_coloros           & goto menu_loop)
-if "!OPTION!"=="4"  (call :debloat_gaming            & goto menu_loop)
-if "!OPTION!"=="5"  (call :debloat_payments          & goto menu_loop)
-if "!OPTION!"=="6"  (call :debloat_social            & goto menu_loop)
-if "!OPTION!"=="7"  (call :debloat_google            & goto menu_loop)
-if "!OPTION!"=="8"  (call :debloat_all               & goto menu_loop)
-if "!OPTION!"=="9"  (call :custom_uninstall          & goto menu_loop)
-if "!OPTION!"=="10" (call :debloat_miui_analytics    & goto menu_loop)
-if "!OPTION!"=="11" (call :debloat_miui_apps         & goto menu_loop)
-if "!OPTION!"=="12" (call :debloat_oneplus           & goto menu_loop)
-if "!OPTION!"=="13" (call :debloat_android_extras    & goto menu_loop)
-if "!OPTION!"=="14" (call :debloat_vendor_overlays   & goto menu_loop)
-if "!OPTION!"=="15" (call :debloat_qualcomm          & goto menu_loop)
-if "!OPTION!"=="16" (call :debloat_microsoft         & goto menu_loop)
-if /i "!OPTION!"=="r" (call :reinstall_pkg           & goto menu_loop)
+if "!OPTION!"=="1"  (call :check_device soft && call :list_packages           & goto menu_loop)
+if "!OPTION!"=="2"  (call :check_device soft && call :debloat_analytics       & goto menu_loop)
+if "!OPTION!"=="3"  (call :check_device soft && call :debloat_coloros         & goto menu_loop)
+if "!OPTION!"=="4"  (call :check_device soft && call :debloat_gaming          & goto menu_loop)
+if "!OPTION!"=="5"  (call :check_device soft && call :debloat_payments        & goto menu_loop)
+if "!OPTION!"=="6"  (call :check_device soft && call :debloat_social          & goto menu_loop)
+if "!OPTION!"=="7"  (call :check_device soft && call :debloat_google          & goto menu_loop)
+if "!OPTION!"=="8"  (call :check_device soft && call :debloat_all             & goto menu_loop)
+if "!OPTION!"=="9"  (call :check_device soft && call :custom_uninstall        & goto menu_loop)
+if "!OPTION!"=="10" (call :check_device soft && call :debloat_miui_analytics  & goto menu_loop)
+if "!OPTION!"=="11" (call :check_device soft && call :debloat_miui_apps       & goto menu_loop)
+if "!OPTION!"=="12" (call :check_device soft && call :debloat_oneplus         & goto menu_loop)
+if "!OPTION!"=="13" (call :check_device soft && call :debloat_android_extras  & goto menu_loop)
+if "!OPTION!"=="14" (call :check_device soft && call :debloat_vendor_overlays & goto menu_loop)
+if "!OPTION!"=="15" (call :check_device soft && call :debloat_qualcomm        & goto menu_loop)
+if "!OPTION!"=="16" (call :check_device soft && call :debloat_microsoft       & goto menu_loop)
+if /i "!OPTION!"=="r" (call :check_device soft && call :reinstall_pkg         & goto menu_loop)
 if /i "!OPTION!"=="d" (call :toggle_dry_run          & goto menu_loop)
 if /i "!OPTION!"=="l" (call :toggle_logging          & goto menu_loop)
 if /i "!OPTION!"=="s" (call :print_summary           & goto menu_loop)
