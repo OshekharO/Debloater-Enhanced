@@ -75,8 +75,9 @@ goto :eof
 
 :: =============================================================================
 :check_device
-set "DEVICE_FOUND="
+set "CHECK_MODE="
 set "CHECK_MODE=%~1"
+set "DEVICE_FOUND="
 for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set "DEVICE_FOUND=%%a"
 if not defined DEVICE_FOUND (
     echo   %RED%[ERR]%NC%   No authorised device detected.
