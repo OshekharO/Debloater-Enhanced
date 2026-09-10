@@ -206,6 +206,8 @@ if !errorlevel!==0 (
     set /a DISABLED_COUNT+=1
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # DISABLED
+    type "!PKG_CACHE_FILE!" | findstr /v /x /c:"package:%~1" > "!PKG_CACHE_FILE!.tmp" 2>nul
+    move /y "!PKG_CACHE_FILE!.tmp" "!PKG_CACHE_FILE!" >nul 2>&1
 ) else (
     echo   %RED%  FAILED%NC%  disable %BOLD%%~2%NC% ^(%~1^)
 )
@@ -703,6 +705,7 @@ set /p "PKG=  Enter package name to reinstall: "
 if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
 echo   %CYAN%[INFO]%NC%  Reinstalling !PKG!...
 adb shell cmd package install-existing "!PKG!"
+if exist "!PKG_CACHE_FILE!" del /f /q "!PKG_CACHE_FILE!" >nul 2>&1
 goto :eof
 
 :: =============================================================================
