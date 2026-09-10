@@ -38,6 +38,7 @@ if defined WMIC_DT (
     set "LOG_FILE=debloater_session.log"
     set "RESTORE_FILE=restore_packages_session.txt"
 )
+set "PKG_CACHE_FILE=%TEMP%\debloater_pkg_cache_%RANDOM%.tmp"
 
 cls
 call :print_banner
@@ -132,6 +133,11 @@ goto :eof
 
 :: =============================================================================
 :: :init_restore_file  — writes the restore-file header the first time it is called
+:ensure_pkg_cache
+if exist "!PKG_CACHE_FILE!" goto :eof
+adb shell pm list packages 2>nul > "!PKG_CACHE_FILE!"
+goto :eof
+
 :init_restore_file
 if exist "!RESTORE_FILE!" goto :eof
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.model 2^>nul') do set "RF_MODEL=%%a"
@@ -153,7 +159,8 @@ goto :eof
 :: =============================================================================
 :: :uninstall_pkg  %1=package  %2=friendly-name
 :uninstall_pkg
-adb shell pm list packages 2>nul | findstr /c:"package:%~1" >nul 2>&1
+call :ensure_pkg_cache
+findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
@@ -170,6 +177,8 @@ if !errorlevel!==0 (
     if !LOG_ENABLED!==1 echo REMOVED %~1 - %~2 >> "!LOG_FILE!"
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # REMOVED
+    type "!PKG_CACHE_FILE!" | findstr /v /x /c:"package:%~1" > "!PKG_CACHE_FILE!.tmp" 2>nul
+    move /y "!PKG_CACHE_FILE!.tmp" "!PKG_CACHE_FILE!" >nul 2>&1
 ) else (
     echo   %RED%  FAILED%NC%  %BOLD%%~2%NC% ^(%~1^)
     if !LOG_ENABLED!==1 echo FAILED  %~1 - %~2 >> "!LOG_FILE!"
@@ -179,7 +188,8 @@ goto :eof
 :: =============================================================================
 :: :disable_pkg  %1=package  %2=friendly-name
 :disable_pkg
-adb shell pm list packages 2>nul | findstr /c:"package:%~1" >nul 2>&1
+call :ensure_pkg_cache
+findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
@@ -804,6 +814,7 @@ if /i "!OPTION!"=="l" (call :toggle_logging          & goto menu_loop)
 if /i "!OPTION!"=="s" (call :print_summary           & goto menu_loop)
 if "!OPTION!"=="0" (
     call :print_summary
+    if exist "!PKG_CACHE_FILE!" del /f /q "!PKG_CACHE_FILE!" >nul 2>&1
     echo   %CYAN%[INFO]%NC%  Exiting. Enjoy your optimised device!
     exit /b 0
 )

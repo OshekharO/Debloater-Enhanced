@@ -29,6 +29,28 @@ LOG_FILE="debloater_$(date +%Y%m%d_%H%M%S).log"
 REMOVED_PKGS=()
 DISABLED_PKGS=()
 RESTORE_FILE=""     # lazy-initialized on first successful removal/disable
+INSTALLED_PKGS_CACHE="" # lazy-initialized to cache 'adb shell pm list packages' output
+
+# ── Package cache helpers ─────────────────────────────────────────────────────
+# Fetches all installed packages once into INSTALLED_PKGS_CACHE to avoid O(N) ADB calls.
+ensure_pkg_cache() {
+    if [[ -z "$INSTALLED_PKGS_CACHE" ]]; then
+        INSTALLED_PKGS_CACHE=$(adb shell pm list packages 2>/dev/null | tr -d '\r')
+    fi
+}
+
+is_pkg_installed() {
+    local pkg="$1"
+    ensure_pkg_cache
+    grep -q "^package:${pkg}$" <<< "$INSTALLED_PKGS_CACHE"
+}
+
+remove_from_pkg_cache() {
+    local pkg="$1"
+    if [[ -n "$INSTALLED_PKGS_CACHE" ]]; then
+        INSTALLED_PKGS_CACHE=$(grep -v "^package:${pkg}$" <<< "$INSTALLED_PKGS_CACHE")
+    fi
+}
 
 # ── Logging helpers ───────────────────────────────────────────────────────────
 info()    { echo -e "  ${CYAN}[INFO]${NC}  $*"; }
@@ -154,7 +176,7 @@ print_device_info() {
 uninstall_pkg() {
     local pkg="$1" name="${2:-$1}"
 
-    if ! adb shell pm list packages 2>/dev/null | grep -q "^package:${pkg}$"; then
+    if ! is_pkg_installed "$pkg"; then
         echo -e "  ${DIM}  SKIP    ${pkg} (not installed)${NC}"
         log_action "SKIP    $pkg — not installed"
         return 0
@@ -172,6 +194,7 @@ uninstall_pkg() {
         echo -e "  ${GREEN}  REMOVED${NC} ${BOLD}${name}${NC} (${pkg})"
         log_action "REMOVED $pkg — $name"
         REMOVED_PKGS+=("$pkg")
+        remove_from_pkg_cache "$pkg"
         _write_restore_file "$pkg" "REMOVED"
     else
         echo -e "  ${RED}  FAILED${NC}  ${BOLD}${name}${NC} (${pkg}) → ${out}"
@@ -183,7 +206,7 @@ uninstall_pkg() {
 disable_pkg() {
     local pkg="$1" name="${2:-$1}"
 
-    if ! adb shell pm list packages 2>/dev/null | grep -q "^package:${pkg}$"; then
+    if ! is_pkg_installed "$pkg"; then
         echo -e "  ${DIM}  SKIP    ${pkg} (not installed)${NC}"
         return 0
     fi
