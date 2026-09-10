@@ -222,6 +222,7 @@ disable_pkg() {
         echo -e "  ${CYAN}  DISABLED${NC} ${BOLD}${name}${NC} (${pkg})"
         log_action "DISABLED $pkg — $name"
         DISABLED_PKGS+=("$pkg")
+        remove_from_pkg_cache "$pkg"
         _write_restore_file "$pkg" "DISABLED"
     else
         echo -e "  ${RED}  FAILED${NC}  disable ${BOLD}${name}${NC} (${pkg}) → ${out}"
@@ -770,6 +771,7 @@ reinstall_pkg() {
     out=$(adb shell cmd package install-existing "$pkg" 2>&1)
     if echo "$out" | grep -q "installed\|Success"; then
         success "${pkg} reinstalled successfully."
+        INSTALLED_PKGS_CACHE=""
     else
         error "Failed to reinstall ${pkg}. It may not exist in the device OTA image."
         echo -e "  ${DIM}${out}${NC}"
@@ -908,6 +910,12 @@ main_menu() {
 }
 
 # ── Entry point ───────────────────────────────────────────────────────────────
+cleanup() {
+    # Ensure terminal state / temp variables are handled gracefully on exit
+    :
+}
+trap cleanup EXIT INT TERM
+
 main() {
     clear
     print_banner
