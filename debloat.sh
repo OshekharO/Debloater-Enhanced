@@ -42,13 +42,13 @@ ensure_pkg_cache() {
 is_pkg_installed() {
     local pkg="$1"
     ensure_pkg_cache
-    grep -q "^package:${pkg}$" <<< "$INSTALLED_PKGS_CACHE"
+    grep -Fxq "package:${pkg}" <<< "$INSTALLED_PKGS_CACHE"
 }
 
 remove_from_pkg_cache() {
     local pkg="$1"
     if [[ -n "$INSTALLED_PKGS_CACHE" ]]; then
-        INSTALLED_PKGS_CACHE=$(grep -v "^package:${pkg}$" <<< "$INSTALLED_PKGS_CACHE")
+        INSTALLED_PKGS_CACHE=$(grep -Fxv "package:${pkg}" <<< "$INSTALLED_PKGS_CACHE")
     fi
 }
 
@@ -117,11 +117,11 @@ check_device() {
     local count
     count=$(adb devices 2>/dev/null | grep -c $'\tdevice$')
     if [[ "$count" -eq 0 ]]; then
-        error "No authorised device detected."
-        warn  "  1. Enable USB Debugging (Settings → About Phone → tap Build Number ×7)"
-        warn  "  2. Connect via USB and tap 'Allow' on the device prompt"
-        warn  "  3. Confirm your USB cable supports data transfer"
-        if [[ "$fail_mode" == "return" ]]; then
+        warn "No authorised device detected."
+        warn "  1. Enable USB Debugging (Settings → About Phone → tap Build Number ×7)"
+        warn "  2. Connect via USB and tap 'Allow' on the device prompt"
+        warn "  3. Confirm your USB cable supports data transfer"
+        if [[ "$fail_mode" == "return" || "$fail_mode" == "soft" ]]; then
             return 1
         fi
         exit 1
@@ -129,7 +129,7 @@ check_device() {
     if [[ "$count" -gt 1 ]]; then
         if [[ -z "${ANDROID_SERIAL:-}" ]]; then
             error "Multiple authorised devices detected. Set ANDROID_SERIAL to target one device."
-            if [[ "$fail_mode" == "return" ]]; then
+            if [[ "$fail_mode" == "return" || "$fail_mode" == "soft" ]]; then
                 return 1
             fi
             exit 1
@@ -140,6 +140,9 @@ check_device() {
 
 # ── Device information ────────────────────────────────────────────────────────
 print_device_info() {
+    if ! check_device soft; then
+        return 0
+    fi
     local model brand android coloros miui
     model=$(adb shell getprop ro.product.model 2>/dev/null | tr -d '\r')
     brand=$(adb shell getprop ro.product.brand 2>/dev/null | tr -d '\r')
@@ -162,7 +165,7 @@ print_device_info() {
 
     local brand_lc
     brand_lc=$(echo "$brand" | tr '[:upper:]' '[:lower:]')
-    if [[ "$brand_lc" != "oppo" && "$brand_lc" != "realme" && \
+    if [[ -n "$brand" && "$brand_lc" != "oppo" && "$brand_lc" != "realme" && \
           "$brand_lc" != "oneplus" && "$brand_lc" != "xiaomi" && \
           "$brand_lc" != "redmi" && "$brand_lc" != "poco" ]]; then
         warn "This script targets OPPO/Realme/Xiaomi/Redmi/OnePlus devices."
@@ -762,19 +765,21 @@ list_packages() {
 
 # ── Reinstall a previously removed package ────────────────────────────────────
 reinstall_pkg() {
-    section "Reinstall Package"
-    echo -ne "  Enter package name to reinstall: "
+    section "Reinstall / Restore Package"
+    echo -ne "  Enter package name to reinstall or re-enable: "
     read -r pkg
     [[ -z "$pkg" ]] && { warn "No package name entered."; return; }
-    info "Attempting reinstall of ${BOLD}${pkg}${NC}…"
-    local out
-    out=$(adb shell cmd package install-existing "$pkg" 2>&1)
-    if echo "$out" | grep -q "installed\|Success"; then
-        success "${pkg} reinstalled successfully."
+    info "Attempting reinstall/re-enable of ${BOLD}${pkg}${NC}…"
+    local out_reinstall out_enable
+    out_reinstall=$(adb shell cmd package install-existing "$pkg" 2>&1)
+    out_enable=$(adb shell pm enable --user 0 "$pkg" 2>&1)
+    if echo "$out_reinstall" | grep -q "installed\|Success" || echo "$out_enable" | grep -qi "enabled"; then
+        success "${pkg} restored successfully."
         INSTALLED_PKGS_CACHE=""
     else
-        error "Failed to reinstall ${pkg}. It may not exist in the device OTA image."
-        echo -e "  ${DIM}${out}${NC}"
+        error "Failed to restore ${pkg}."
+        echo -e "  ${DIM}Install output: ${out_reinstall}${NC}"
+        echo -e "  ${DIM}Enable output : ${out_enable}${NC}"
     fi
 }
 
@@ -920,7 +925,7 @@ main() {
     clear
     print_banner
     check_adb
-    check_device
+    check_device soft || true
     print_device_info
     main_menu
 }

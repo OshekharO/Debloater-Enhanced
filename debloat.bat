@@ -43,7 +43,7 @@ set "PKG_CACHE_FILE=%TEMP%\debloater_pkg_cache_%RANDOM%.tmp"
 cls
 call :print_banner
 call :check_adb
-call :check_device
+call :check_device soft
 call :print_device_info
 call :main_menu
 goto :eof
@@ -78,28 +78,39 @@ goto :eof
 :check_device
 set "CHECK_MODE=%~1"
 set "DEVICE_COUNT=0"
-for /f "tokens=*" %%a in ('adb devices 2^>nul ^| findstr /r /c:"	device$"') do set /a DEVICE_COUNT+=1
+for /f "tokens=1,2" %%a in ('adb devices 2^>nul') do (
+    if "%%b"=="device" set /a DEVICE_COUNT+=1
+)
 if "!DEVICE_COUNT!"=="0" (
-    echo   %RED%[ERR]%NC%   No authorised device detected.
+    echo   %YELLOW%[WARN]%NC%  No authorised device detected.
     echo.
     echo          Steps to fix:
     echo          1. Enable USB Debugging: Settings - About Phone - tap Build Number x7
     echo          2. Connect via USB and tap Allow on device prompt
     echo          3. Ensure your USB cable supports data transfer
     echo.
-    if /i not "!CHECK_MODE!"=="soft" pause
+    if /i not "!CHECK_MODE!"=="soft" (
+        pause
+        exit /b 1
+    )
     exit /b 1
 )
 if !DEVICE_COUNT! gtr 1 if not defined ANDROID_SERIAL (
     echo   %RED%[ERR]%NC%   Multiple authorised devices detected.
     echo          Set ANDROID_SERIAL to the target device serial and retry.
-    if /i not "!CHECK_MODE!"=="soft" pause
+    if /i not "!CHECK_MODE!"=="soft" (
+        pause
+        exit /b 1
+    )
     exit /b 1
 )
 goto :eof
 
 :: =============================================================================
 :print_device_info
+call :check_device soft
+if %errorlevel% neq 0 goto :eof
+
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.model 2^>nul') do set "DEVICE_MODEL=%%a"
 for /f "tokens=*" %%a in ('adb shell getprop ro.product.brand 2^>nul') do set "DEVICE_BRAND=%%a"
 for /f "tokens=*" %%a in ('adb shell getprop ro.build.version.release 2^>nul') do set "ANDROID_VER=%%a"
@@ -126,16 +137,20 @@ for %%b in (oppo realme oneplus xiaomi redmi poco) do (
     if /i "!DEVICE_BRAND!"=="%%b" set "BRAND_LC=known"
 )
 if /i "!BRAND_LC!"=="known" goto :eof
-echo   %YELLOW%[WARN]%NC%  This script targets OPPO/Realme/Xiaomi/Redmi/OnePlus devices.
-echo   %YELLOW%[WARN]%NC%  Detected brand: !DEVICE_BRAND!. Package names may not match.
-echo.
+if defined DEVICE_BRAND (
+    echo   %YELLOW%[WARN]%NC%  This script targets OPPO/Realme/Xiaomi/Redmi/OnePlus devices.
+    echo   %YELLOW%[WARN]%NC%  Detected brand: !DEVICE_BRAND!. Package names may not match.
+    echo.
+)
 goto :eof
 
 :: =============================================================================
 :: :init_restore_file  — writes the restore-file header the first time it is called
 :ensure_pkg_cache
 if exist "!PKG_CACHE_FILE!" goto :eof
-adb shell pm list packages 2>nul > "!PKG_CACHE_FILE!"
+adb shell pm list packages 2>nul | findstr /v "^$" > "!PKG_CACHE_FILE!.raw"
+type "!PKG_CACHE_FILE!.raw" | findstr /r "^package:" > "!PKG_CACHE_FILE!" 2>nul
+if exist "!PKG_CACHE_FILE!.raw" del /f /q "!PKG_CACHE_FILE!.raw" >nul 2>&1
 goto :eof
 
 :init_restore_file
@@ -159,57 +174,59 @@ goto :eof
 :: =============================================================================
 :: :uninstall_pkg  %1=package  %2=friendly-name
 :uninstall_pkg
+set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
 )
 if !DRY_RUN!==1 (
-    echo   %YELLOW%  DRY-RUN%NC% Would remove: %BOLD%%~2%NC% ^(%~1^)
+    echo   %YELLOW%  DRY-RUN%NC% Would remove: %BOLD%!PKG_NAME!%NC% ^(%~1^)
     goto :eof
 )
 for /f "tokens=*" %%r in ('adb shell pm uninstall --user 0 "%~1" 2^>^&1') do set "PM_RESULT=%%r"
 echo !PM_RESULT! | findstr /c:"Success" >nul 2>&1
 if !errorlevel!==0 (
-    echo   %GREEN%  REMOVED%NC% %BOLD%%~2%NC% ^(%~1^)
+    echo   %GREEN%  REMOVED%NC% %BOLD%!PKG_NAME!%NC% ^(%~1^)
     set /a REMOVED_COUNT+=1
-    if !LOG_ENABLED!==1 echo REMOVED %~1 - %~2 >> "!LOG_FILE!"
+    if !LOG_ENABLED!==1 echo REMOVED %~1 - !PKG_NAME! >> "!LOG_FILE!"
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # REMOVED
     type "!PKG_CACHE_FILE!" | findstr /v /x /c:"package:%~1" > "!PKG_CACHE_FILE!.tmp" 2>nul
     move /y "!PKG_CACHE_FILE!.tmp" "!PKG_CACHE_FILE!" >nul 2>&1
 ) else (
-    echo   %RED%  FAILED%NC%  %BOLD%%~2%NC% ^(%~1^)
-    if !LOG_ENABLED!==1 echo FAILED  %~1 - %~2 >> "!LOG_FILE!"
+    echo   %RED%  FAILED%NC%  %BOLD%!PKG_NAME!%NC% ^(%~1^)
+    if !LOG_ENABLED!==1 echo FAILED  %~1 - !PKG_NAME! >> "!LOG_FILE!"
 )
 goto :eof
 
 :: =============================================================================
 :: :disable_pkg  %1=package  %2=friendly-name
 :disable_pkg
+set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
 )
 if !DRY_RUN!==1 (
-    echo   %YELLOW%  DRY-RUN%NC% Would disable: %BOLD%%~2%NC% ^(%~1^)
+    echo   %YELLOW%  DRY-RUN%NC% Would disable: %BOLD%!PKG_NAME!%NC% ^(%~1^)
     goto :eof
 )
 for /f "tokens=*" %%r in ('adb shell pm disable-user --user 0 "%~1" 2^>^&1') do set "PM_RESULT=%%r"
 echo !PM_RESULT! | findstr /i "disabled" >nul 2>&1
 if !errorlevel!==0 (
-    echo   %CYAN%  DISABLED%NC% %BOLD%%~2%NC% ^(%~1^)
-    if !LOG_ENABLED!==1 echo DISABLED %~1 - %~2 >> "!LOG_FILE!"
+    echo   %CYAN%  DISABLED%NC% %BOLD%!PKG_NAME!%NC% ^(%~1^)
+    if !LOG_ENABLED!==1 echo DISABLED %~1 - !PKG_NAME! >> "!LOG_FILE!"
     set /a DISABLED_COUNT+=1
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # DISABLED
     type "!PKG_CACHE_FILE!" | findstr /v /x /c:"package:%~1" > "!PKG_CACHE_FILE!.tmp" 2>nul
     move /y "!PKG_CACHE_FILE!.tmp" "!PKG_CACHE_FILE!" >nul 2>&1
 ) else (
-    echo   %RED%  FAILED%NC%  disable %BOLD%%~2%NC% ^(%~1^)
+    echo   %RED%  FAILED%NC%  disable %BOLD%!PKG_NAME!%NC% ^(%~1^)
 )
 goto :eof
 
@@ -700,11 +717,12 @@ goto :eof
 :: =============================================================================
 :reinstall_pkg
 echo.
-echo %BLUE%  == Reinstall Package ==%NC%
-set /p "PKG=  Enter package name to reinstall: "
+echo %BLUE%  == Reinstall / Restore Package ==%NC%
+set /p "PKG=  Enter package name to reinstall or re-enable: "
 if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
-echo   %CYAN%[INFO]%NC%  Reinstalling !PKG!...
+echo   %CYAN%[INFO]%NC%  Reinstalling/Re-enabling !PKG!...
 adb shell cmd package install-existing "!PKG!"
+adb shell pm enable --user 0 "!PKG!"
 if exist "!PKG_CACHE_FILE!" del /f /q "!PKG_CACHE_FILE!" >nul 2>&1
 goto :eof
 
