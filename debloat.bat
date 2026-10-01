@@ -148,7 +148,9 @@ goto :eof
 :: :init_restore_file  — writes the restore-file header the first time it is called
 :ensure_pkg_cache
 if exist "!PKG_CACHE_FILE!" goto :eof
-adb shell pm list packages 2>nul > "!PKG_CACHE_FILE!"
+adb shell pm list packages 2>nul | findstr /v "^$" > "!PKG_CACHE_FILE!.raw"
+type "!PKG_CACHE_FILE!.raw" | findstr /r "^package:" > "!PKG_CACHE_FILE!" 2>nul
+if exist "!PKG_CACHE_FILE!.raw" del /f /q "!PKG_CACHE_FILE!.raw" >nul 2>&1
 goto :eof
 
 :init_restore_file
@@ -174,7 +176,7 @@ goto :eof
 :uninstall_pkg
 set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
@@ -204,7 +206,7 @@ goto :eof
 :disable_pkg
 set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
