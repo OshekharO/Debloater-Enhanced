@@ -33,12 +33,12 @@ Packages are organised into focused categories so you can remove only what you d
 
 | Feature | Description |
 |---------|-------------|
-| **12 Debloat Categories** | ColorOS analytics, ColorOS bloat, Gaming, Payments, Social, Google, MIUI Analytics & Ads, MIUI System Apps, OnePlus/OxygenOS |
+| **13 Debloat Categories** | Analytics & Telemetry, ColorOS/OPPO Bloatware, Game Space & Gaming, Payment & Financial, Facebook & Social, Google Bloatware, Xiaomi/Redmi Analytics & Ads, Xiaomi/Redmi System Apps, OnePlus/OxygenOS, AOSP/Android Extras, Vendor Overlays & RROs, Qualcomm & HW Diagnostics, Microsoft & 3rd-Party Preloads |
 | **Auto Restore List** | Automatically saves `restore_packages_*.txt` whenever packages are removed or disabled, listing every package ID with reinstall/re-enable commands |
 | **Dry-Run Mode** | Preview all actions without making any changes |
 | **Per-Package Detection** | Skips packages not present on the device — no false failures |
 | **Disable vs. Remove** | System-critical apps are disabled instead of uninstalled |
-| **Reinstall / Restore** | Restore any removed package with a single menu option |
+| **Reinstall / Restore** | Restore or re-enable any package with a single menu option |
 | **Session Logging** | Optionally write every action to a timestamped log file |
 | **Session Summary** | See exactly how many packages were removed/disabled at the end |
 | **Custom Uninstall** | Remove any package by entering its name manually |
@@ -74,17 +74,21 @@ grep '# REMOVED' restore_packages_*.txt | awk '{print $1}' | \
 
 ## Debloat Categories
 
-| # | Category | Brand | What is removed |
+| # | Category | Brand | What is removed / disabled |
 |---|----------|-------|-----------------|
-| 2 | Analytics & Telemetry | ColorOS | HeyTap analytics, OPlus statistical/feedback, Tencent Soter, ColorOS diagnostics, NearMe Push, OPlus AI Unit |
-| 3 | ColorOS / OPPO Bloatware | ColorOS | Browser, music, video, cloud, community, share, compass, OCR, notes, health, AI emoji, lockscreen mag, Weather, Tips, Easy Switch, Document Manager |
-| 4 | Game Space & Gaming | ColorOS | Game Space UI/service, HeyFun, OPlus Games, NearMe game platform |
-| 5 | Payment & Financial | ColorOS | OPlus Pay, ColorOS Secure Pay, Realme PaySa |
+| 2 | Analytics & Telemetry | ColorOS / OPPO | HeyTap analytics, OPlus statistical/feedback, Tencent Soter, ColorOS diagnostics, NearMe Push, OPlus AI Unit |
+| 3 | ColorOS / OPPO Bloatware | ColorOS / OPPO | Browser, music, video, cloud, community, share, compass, OCR, notes, health, AI emoji, lockscreen mag, Weather, Tips, Easy Switch, Document Manager |
+| 4 | Game Space & Gaming | ColorOS / OPPO | Game Space UI/service, HeyFun, OPlus Games, NearMe game platform |
+| 5 | Payment & Financial | ColorOS / OPPO | OPlus Pay, ColorOS Secure Pay, Realme PaySa, ColorOS Wallet |
 | 6 | Facebook & Social | All | Facebook Services, App Manager, System, Katana |
 | 7 | Google Bloatware | All | Meet, GPay, Google One, TalkBack, YouTube, Assistant, Photos, Drive, AR Core, Auto, and more |
-| 10 | Xiaomi/Redmi Analytics & Ads | MIUI/HyperOS | MIUI Analytics, Joyose, System Ad Service, Hybrid Ad Bridge, Global Analytics, Hybrid Ad Service, AI Assistant telemetry |
-| 11 | Xiaomi/Redmi System Apps | MIUI/HyperOS | Minus Screen, Mi Music/Video/Notes/Weather, Mi Share, Mi Drop, Mi Home, Mi Browser, Clean Master, Game Center, Anti-Spam, News Channels, Translation, Sogou/Baidu/iFlytek IMEs |
-| 12 | OnePlus / OxygenOS | OxygenOS | OnePlus Account, App Center, Store, Community, Log Kit, Gallery, File Manager, Wallet, Health, Game Space, Widgets, Zen Mode, Amazon Appstore |
+| 10 | Xiaomi/Redmi Analytics & Ads | MIUI / HyperOS | MIUI Analytics, Joyose, System Ad Service, Hybrid Ad Bridge, Global Analytics, Hybrid Ad Service, AI Assistant telemetry |
+| 11 | Xiaomi/Redmi System Apps | MIUI / HyperOS | Minus Screen, Mi Music/Video/Notes, Mi Share, Mi Drop, Mi Home, Mi Browser, Clean Master, Game Center, Anti-Spam, News Channels, Translation, Sogou/Baidu/iFlytek IMEs |
+| 12 | OnePlus / OxygenOS | OxygenOS | OnePlus Account, App Center, Store, Community, Log Kit, Wallet, Health, Game Space, Widgets, Zen Mode, Amazon Appstore |
+| 13 | AOSP / Android System Extras | All | Device Diagnostics, System Tracer, Device As Webcam, Partner Bookmarks, Call Log Backup, Carrier Default App |
+| 14 | Vendor Overlays & RROs | MIUI / HyperOS / ColorOS | QVA Common, Xiaomi Auto-Install Config, MIUI Wallpaper/Carrier Overlays, Mi Global Layout |
+| 15 | Qualcomm & HW Diagnostics | Snapdragon Devices | Qualcomm Device Statistics Service, MIUI CIT, Fingerprint Test Tools |
+| 16 | Microsoft & 3rd-Party Preloads | All | Microsoft App Manager, Cross-Device Service Broker, Device Integration Service |
 
 ## How to Use
 
