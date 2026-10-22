@@ -14,26 +14,48 @@ setlocal enabledelayedexpansion
 
 :: ── ANSI color support (Windows 10 v1511+) ───────────────────────────────────
 for /f %%a in ('echo prompt $E^| cmd') do set "ESC=%%a"
-set "RED=%ESC%[31m"
-set "GREEN=%ESC%[32m"
-set "YELLOW=%ESC%[33m"
-set "BLUE=%ESC%[1;34m"
-set "MAGENTA=%ESC%[35m"
-set "CYAN=%ESC%[36m"
-set "BOLD=%ESC%[1m"
-set "DIM=%ESC%[2m"
-set "NC=%ESC%[0m"
+if defined ESC (
+    set "RED=%ESC%[31m"
+    set "GREEN=%ESC%[32m"
+    set "YELLOW=%ESC%[33m"
+    set "BLUE=%ESC%[1;34m"
+    set "MAGENTA=%ESC%[35m"
+    set "CYAN=%ESC%[36m"
+    set "BOLD=%ESC%[1m"
+    set "DIM=%ESC%[2m"
+    set "NC=%ESC%[0m"
+) else (
+    set "RED="
+    set "GREEN="
+    set "YELLOW="
+    set "BLUE="
+    set "MAGENTA="
+    set "CYAN="
+    set "BOLD="
+    set "DIM="
+    set "NC="
+)
 
 :: ── Runtime state ─────────────────────────────────────────────────────────────
 set DRY_RUN=0
 set LOG_ENABLED=0
 set REMOVED_COUNT=0
 set DISABLED_COUNT=0
+set "REMOVED_PKGS="
+set "DISABLED_PKGS="
 set "RESTORE_FILE="
+set "WMIC_DT="
+set "PS_DT="
 for /f "tokens=2 delims==" %%a in ('wmic os get localdatetime /value 2^>nul') do set "WMIC_DT=%%a"
+if not defined WMIC_DT (
+    for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss" 2^>nul') do set "PS_DT=%%a"
+)
 if defined WMIC_DT (
     set "LOG_FILE=debloater_!WMIC_DT:~0,8!_!WMIC_DT:~8,6!.log"
     set "RESTORE_FILE=restore_packages_!WMIC_DT:~0,8!_!WMIC_DT:~8,6!.txt"
+) else if defined PS_DT (
+    set "LOG_FILE=debloater_!PS_DT!.log"
+    set "RESTORE_FILE=restore_packages_!PS_DT!.txt"
 ) else (
     set "LOG_FILE=debloater_session.log"
     set "RESTORE_FILE=restore_packages_session.txt"
@@ -95,14 +117,16 @@ if "!DEVICE_COUNT!"=="0" (
     )
     exit /b 1
 )
-if !DEVICE_COUNT! gtr 1 if not defined ANDROID_SERIAL (
-    echo   %RED%[ERR]%NC%   Multiple authorised devices detected.
-    echo          Set ANDROID_SERIAL to the target device serial and retry.
-    if /i not "!CHECK_MODE!"=="soft" (
-        pause
+if !DEVICE_COUNT! gtr 1 (
+    if not defined ANDROID_SERIAL (
+        echo   %RED%[ERR]%NC%   Multiple authorised devices detected.
+        echo          Set ANDROID_SERIAL to the target device serial and retry.
+        if /i not "!CHECK_MODE!"=="soft" (
+            pause
+            exit /b 1
+        )
         exit /b 1
     )
-    exit /b 1
 )
 goto :eof
 
@@ -148,9 +172,14 @@ goto :eof
 :: :init_restore_file  — writes the restore-file header the first time it is called
 :ensure_pkg_cache
 if exist "!PKG_CACHE_FILE!" goto :eof
-adb shell pm list packages 2>nul | findstr /v "^$" > "!PKG_CACHE_FILE!.raw"
-type "!PKG_CACHE_FILE!.raw" | findstr /r "^package:" > "!PKG_CACHE_FILE!" 2>nul
-if exist "!PKG_CACHE_FILE!.raw" del /f /q "!PKG_CACHE_FILE!.raw" >nul 2>&1
+for /f "tokens=*" %%a in ('adb shell pm list packages 2^>nul') do (
+    echo %%a>> "!PKG_CACHE_FILE!.raw"
+)
+if exist "!PKG_CACHE_FILE!.raw" (
+    type "!PKG_CACHE_FILE!.raw" | findstr /r "^package:" > "!PKG_CACHE_FILE!" 2>nul
+    del /f /q "!PKG_CACHE_FILE!.raw" >nul 2>&1
+)
+if not exist "!PKG_CACHE_FILE!" type nul > "!PKG_CACHE_FILE!"
 goto :eof
 
 :init_restore_file
@@ -176,7 +205,7 @@ goto :eof
 :uninstall_pkg
 set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
@@ -190,6 +219,7 @@ echo !PM_RESULT! | findstr /c:"Success" >nul 2>&1
 if !errorlevel!==0 (
     echo   %GREEN%  REMOVED%NC% %BOLD%!PKG_NAME!%NC% ^(%~1^)
     set /a REMOVED_COUNT+=1
+    set "REMOVED_PKGS=!REMOVED_PKGS! %~1"
     if !LOG_ENABLED!==1 echo REMOVED %~1 - !PKG_NAME! >> "!LOG_FILE!"
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # REMOVED
@@ -206,7 +236,7 @@ goto :eof
 :disable_pkg
 set "PKG_NAME=%~2"
 call :ensure_pkg_cache
-findstr /i /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
+findstr /i /x /c:"package:%~1" "!PKG_CACHE_FILE!" >nul 2>&1
 if %errorlevel% neq 0 (
     echo   %DIM%  SKIP    %~1 (not installed)%NC%
     goto :eof
@@ -221,6 +251,7 @@ if !errorlevel!==0 (
     echo   %CYAN%  DISABLED%NC% %BOLD%!PKG_NAME!%NC% ^(%~1^)
     if !LOG_ENABLED!==1 echo DISABLED %~1 - !PKG_NAME! >> "!LOG_FILE!"
     set /a DISABLED_COUNT+=1
+    set "DISABLED_PKGS=!DISABLED_PKGS! %~1"
     call :init_restore_file
     >>"!RESTORE_FILE!" echo %~1   # DISABLED
     type "!PKG_CACHE_FILE!" | findstr /v /x /c:"package:%~1" > "!PKG_CACHE_FILE!.tmp" 2>nul
@@ -234,8 +265,10 @@ goto :eof
 :: :confirm  %1=prompt  -> sets CONFIRMED=1 if user types "yes"
 :confirm
 set "CONFIRMED=0"
+set "CONFIRM_MSG=%~1"
 echo.
-echo   %YELLOW%%~1%NC%
+echo   %YELLOW%!CONFIRM_MSG!%NC%
+set "ANSWER="
 set /p "ANSWER=  Type yes to proceed, anything else to cancel: "
 if /i "!ANSWER!"=="yes" set "CONFIRMED=1"
 goto :eof
@@ -685,6 +718,8 @@ echo.
 echo %BLUE%  == Full Debloat - All Categories ==%NC%
 echo   %RED%%BOLD%This will run every debloat category sequentially.%NC%
 echo   %YELLOW%Recommended for a fresh setup. Confirm each category individually.%NC%
+call :confirm "Run full debloat across all categories?"
+if !CONFIRMED!==0 (echo   %CYAN%[INFO]%NC%  Cancelled. & goto :eof)
 call :debloat_analytics
 call :debloat_coloros
 call :debloat_gaming
@@ -704,12 +739,13 @@ goto :eof
 :list_packages
 echo.
 echo %BLUE%  == Installed Packages ==%NC%
+set "FILTER="
 set /p "FILTER=  Filter by keyword (leave blank to list all): "
 echo.
 if defined FILTER (
-    adb shell pm list packages 2>nul | findstr /i "!FILTER!"
+    for /f "tokens=2 delims=:" %%a in ('adb shell pm list packages 2^>nul ^| findstr /i "!FILTER!" ^| findstr /r "^package:"') do echo   %%a
 ) else (
-    adb shell pm list packages 2>nul
+    for /f "tokens=2 delims=:" %%a in ('adb shell pm list packages 2^>nul ^| findstr /r "^package:"') do echo   %%a
 )
 echo.
 goto :eof
@@ -718,18 +754,30 @@ goto :eof
 :reinstall_pkg
 echo.
 echo %BLUE%  == Reinstall / Restore Package ==%NC%
+set "PKG="
 set /p "PKG=  Enter package name to reinstall or re-enable: "
 if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
-echo   %CYAN%[INFO]%NC%  Reinstalling/Re-enabling !PKG!...
-adb shell cmd package install-existing "!PKG!"
-adb shell pm enable --user 0 "!PKG!"
-if exist "!PKG_CACHE_FILE!" del /f /q "!PKG_CACHE_FILE!" >nul 2>&1
+echo   %CYAN%[INFO]%NC%  Attempting reinstall/re-enable of !PKG!...
+set "OUT_REINSTALL="
+set "OUT_ENABLE="
+for /f "tokens=*" %%r in ('adb shell cmd package install-existing "!PKG!" 2^>^&1') do set "OUT_REINSTALL=%%r"
+for /f "tokens=*" %%e in ('adb shell pm enable --user 0 "!PKG!" 2^>^&1') do set "OUT_ENABLE=%%e"
+echo !OUT_REINSTALL! !OUT_ENABLE! | findstr /i "installed Success enabled" >nul 2>&1
+if !errorlevel!==0 (
+    echo   %GREEN%[OK]%NC%    !PKG! restored successfully.
+    if exist "!PKG_CACHE_FILE!" del /f /q "!PKG_CACHE_FILE!" >nul 2>&1
+) else (
+    echo   %RED%[ERR]%NC%   Failed to restore !PKG!.
+    if defined OUT_REINSTALL echo          Install output: !OUT_REINSTALL!
+    if defined OUT_ENABLE echo          Enable output : !OUT_ENABLE!
+)
 goto :eof
 
 :: =============================================================================
 :custom_uninstall
 echo.
 echo %BLUE%  == Custom Package Removal ==%NC%
+set "PKG="
 set /p "PKG=  Enter package name to uninstall: "
 if not defined PKG (echo   %YELLOW%[WARN]%NC%  No package entered. & goto :eof)
 call :confirm "Uninstall !PKG!?"
@@ -765,7 +813,13 @@ goto :eof
 echo.
 echo %BLUE%  == Session Summary ==%NC%
 echo   %BOLD%Packages removed this session :%NC% !REMOVED_COUNT!
+if defined REMOVED_PKGS (
+    for %%p in (!REMOVED_PKGS!) do echo     %DIM%• %%p%NC%
+)
 echo   %BOLD%Packages disabled this session:%NC% !DISABLED_COUNT!
+if defined DISABLED_PKGS (
+    for %%p in (!DISABLED_PKGS!) do echo     %DIM%• %%p%NC%
+)
 echo.
 if exist "!RESTORE_FILE!" (
     echo   %GREEN%%BOLD%Restore list saved to: !RESTORE_FILE!%NC%
@@ -811,6 +865,7 @@ echo   ^|  [0]  Exit                                         ^|
 echo   +=====================================================+%NC%
 echo.
 
+set "OPTION="
 set /p "OPTION=  Enter option: "
 
 if "!OPTION!"=="1"  (call :check_device soft && call :list_packages           & goto menu_loop)

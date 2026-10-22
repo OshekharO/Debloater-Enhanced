@@ -115,7 +115,7 @@ check_adb() {
 check_device() {
     local fail_mode="${1:-exit}"
     local count
-    count=$(adb devices 2>/dev/null | grep -c $'\tdevice$')
+    count=$(adb devices 2>/dev/null | tr -d '\r' | grep -c $'\tdevice$')
     if [[ "$count" -eq 0 ]]; then
         warn "No authorised device detected."
         warn "  1. Enable USB Debugging (Settings → About Phone → tap Build Number ×7)"
@@ -240,7 +240,7 @@ confirm() {
     echo -e "  ${YELLOW}${prompt}${NC}"
     echo -ne "  Type ${BOLD}yes${NC} to proceed, anything else to cancel: "
     read -r answer
-    [[ "$answer" == "yes" ]]
+    [[ "${answer,,}" == "yes" ]]
 }
 
 # =============================================================================
@@ -734,6 +734,7 @@ debloat_all() {
     section "Full Debloat — All Categories"
     echo -e "  ${RED}${BOLD}This will run every debloat category sequentially.${NC}"
     echo -e "  ${YELLOW}  Recommended for a fresh setup. Confirm each category individually.${NC}"
+    confirm "Run full debloat across all categories?" || { info "Cancelled."; return; }
     debloat_analytics
     debloat_coloros
     debloat_gaming
