@@ -884,23 +884,23 @@ main_menu() {
         read -r option
 
         case "$option" in
-            1) check_device return && list_packages ;;
-            2) check_device return && debloat_analytics ;;
-            3) check_device return && debloat_coloros ;;
-            4) check_device return && debloat_gaming ;;
-            5) check_device return && debloat_payments ;;
-            6) check_device return && debloat_social ;;
-            7) check_device return && debloat_google ;;
-            8) check_device return && debloat_all ;;
-            9) check_device return && custom_uninstall ;;
-            10) check_device return && debloat_miui_analytics ;;
-            11) check_device return && debloat_miui_apps ;;
-            12) check_device return && debloat_oneplus ;;
-            13) check_device return && debloat_android_extras ;;
-            14) check_device return && debloat_vendor_overlays ;;
-            15) check_device return && debloat_qualcomm ;;
-            16) check_device return && debloat_microsoft ;;
-            r|R) check_device return && reinstall_pkg ;;
+            1) list_packages ;;
+            2) debloat_analytics ;;
+            3) debloat_coloros ;;
+            4) debloat_gaming ;;
+            5) debloat_payments ;;
+            6) debloat_social ;;
+            7) debloat_google ;;
+            8) debloat_all ;;
+            9) custom_uninstall ;;
+            10) debloat_miui_analytics ;;
+            11) debloat_miui_apps ;;
+            12) debloat_oneplus ;;
+            13) debloat_android_extras ;;
+            14) debloat_vendor_overlays ;;
+            15) debloat_qualcomm ;;
+            16) debloat_microsoft ;;
+            r|R) reinstall_pkg ;;
             d|D) toggle_dry_run ;;
             l|L) toggle_logging ;;
             s|S) print_summary ;;
